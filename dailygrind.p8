@@ -2,6 +2,93 @@ pico-8 cartridge // http://www.pico-8.com
 version 5
 __lua__
 
+player{}
+player.x = 64
+player.y = 64
+player.speed = 2
+player.sprite = 1
+
+tasks{}
+
+function make_task(p_x, p_y, p_name, p_spr)
+    t{}
+    t.x = x_pos
+    t.y = y_pos
+    t.name = p_name
+    t_.sprite = p_spr
+    add(tasks, t)
+end
+
+make_task(10, 10, "toilet_task", 4)
+
+function is_wall()
+
+end
+
+function is_task()
+
+end
+
+function is_door()
+
+end
+
+function check_collision()
+    ret_val = 0
+    if is_wall() then
+       ret_val = 1
+    else if is_task()
+        ret_val = 2
+    else if is_door()
+        ret_val = 3
+    end
+    return ret_val
+end
+
+function move(p_dir, p_sign)
+    player[p_dir] += p_speed
+end
+
+function un_move(p_dir, p_speed)
+    player[p_dir] -= speed  
+end
+
+function try_move(p_dir, p_speed)
+    move(p_dir, p_speed)
+    action = check_collision()
+    if action not = 0
+        un_move(p_dir, p_speed)    
+    end
+end
+
+function player_move()
+    if btn(0) then 
+        try_move("x", -2)
+	end
+	if btn(1) then 
+        try_move("x", 2)
+	end
+	if btn(2) then 
+        try_move("y", 2)
+	end
+	if btn(3) then 
+        try_move("y", -2)
+	end  
+end
+
+function _update()
+	player_move()
+end
+
+function _draw()
+cls()
+spr(player.sprite, player.x, player.y)
+map(0,0,0,0,64,64)
+end
+
+
+
+
 __gfx__
 0000000000000000777777777777777777777777fffffffffff55ffffffffffffffffffffffffffffff55fffffffffffbbbbbbbbfff44fff0000000000000000
 0000000000000000444444444444744474444447fffffffffff55ffffffffffffffffffffffffffffff55fffffffffffbbbbb4bbfff99fff0000000000000000

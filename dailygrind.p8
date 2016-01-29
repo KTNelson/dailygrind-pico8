@@ -2,20 +2,20 @@ pico-8 cartridge // http://www.pico-8.com
 version 5
 __lua__
 
-player{}
+player = {}
 player.x = 64
 player.y = 64
 player.speed = 2
-player.sprite = 1
+player.sprite = 50
 
-tasks{}
+tasks = {}
 
 function make_task(p_x, p_y, p_name, p_spr)
-    t{}
+    t = {}
     t.x = x_pos
     t.y = y_pos
     t.name = p_name
-    t_.sprite = p_spr
+    t.sprite = p_spr
     add(tasks, t)
 end
 
@@ -23,56 +23,63 @@ make_task(10, 10, "toilet_task", 4)
 
 function is_wall()
 
+    return true
 end
 
 function is_task()
-
+    return true
 end
 
 function is_door()
-
+    return true
 end
 
 function check_collision()
-    ret_val = 0
+    local ret_val = 0
     if is_wall() then
        ret_val = 1
-    else if is_task()
+    end
+    if is_task() then
         ret_val = 2
-    else if is_door()
+    end
+    if is_door() then
         ret_val = 3
     end
     return ret_val
 end
 
-function move(p_dir, p_sign)
+function move(p_dir, p_speed)
     player[p_dir] += p_speed
 end
 
 function un_move(p_dir, p_speed)
-    player[p_dir] -= speed  
+    player[p_dir] -= p_speed  
 end
 
 function try_move(p_dir, p_speed)
     move(p_dir, p_speed)
-    action = check_collision()
-    if action not = 0
-        un_move(p_dir, p_speed)    
-    end
+    local action = check_collision()
+   -- if action not 0 then
+   --     un_move(p_dir, p_speed)    
+   -- end
 end
 
 function player_move()
     if btn(0) then 
         try_move("x", -2)
+        player.sprite = 51
 	end
 	if btn(1) then 
         try_move("x", 2)
+        player.sprite = 52
 	end
 	if btn(2) then 
-        try_move("y", 2)
+        try_move("y", -2)
+        player.sprite = 49
 	end
 	if btn(3) then 
-        try_move("y", -2)
+        try_move("y", 2)
+        player.sprite = 50
 	end  
 end
 
@@ -81,13 +88,10 @@ function _update()
 end
 
 function _draw()
-cls()
-spr(player.sprite, player.x, player.y)
-map(0,0,0,0,64,64)
+    cls()
+    map(0,0,0,0,64,64)
+    spr(player.sprite, player.x, player.y)
 end
-
-
-
 
 __gfx__
 0000000000000000777777777777777777777777fffffffffff55ffffffffffffffffffffffffffffff55fffffffffffbbbbbbbbfff44fff0000000000000000

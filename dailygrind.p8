@@ -155,6 +155,7 @@ function _init()
   make_dog()
   init_tasks()
   init_dog_waypoints()
+  music(0)
 end
 --------------------------------------- collision
 
@@ -370,6 +371,7 @@ function capture_menu_buttons()
     if gamestate == "alarm" then
       reset_game()
       gamestate = "game"
+      music(-1)
     end
     if gamestate == "intro1" then
       gamestate = "intro2"

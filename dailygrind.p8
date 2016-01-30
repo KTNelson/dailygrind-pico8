@@ -145,6 +145,10 @@ function reset_game()
 end
 
 function update_timer()
+  if timervar == 60 then
+    gamestate = "failure"
+  end
+
   if framecount % 15 == 0 and framecount ~= 0 then
     timervar += 1
   end
@@ -172,15 +176,23 @@ function _draw()
       print(timervar, timervarx,1,8)
     end
     if gamestate == "result" then
-    	print(endingstrings[1], 0, 64, 7)
+    	print(endingstrings[2], 0, 64, 7)
     end
     if gamestate == "alarm" then
     	print("7:00 am", 50, 60, 8)
     end
+    if gamestate == "failure" then
+      print(print(endingstrings[1], 0, 32, 7))
+    end
 end
 
 endingstrings = {}
-endingstrings[1] = "you had a good day at work.\
+endingstrings[1] = "You didn't leave for work\
+before 8.\
+You stupid dick.\
+You got fired.\
+the end."
+endingstrings[2] = "you had a good day at work.\
 well done."
 
 __gfx__

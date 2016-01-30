@@ -73,7 +73,7 @@ function make_task(p_name, p_type, p_id, p_index, p_task_time, p_skill_target)
     t.index = p_index
     t.task_time = p_task_time
     t.task_skill = p_skill_target
-    t.newlyskilled = false
+    t.newly_skilled = false
     add(tasks, t)
 end
 
@@ -119,7 +119,7 @@ function init_tasks()
   make_task("relieve yourself", "set time", 113, 8, 4, 6)
   make_task("brush your teeth", "continuous", 177, 9, 3, 7)
   make_task("make a decent coffee", "set time", 241, 10, 8, 1)
-  make_task("go to work", "one shot", 193, 2, 99)
+  make_task("go to work", "one shot", 193, 2, 0, 99)
 end
 
 function reset_tasks()
@@ -278,6 +278,9 @@ function try_do_task()
     end
     current_task.complete = true
     current_task.task_skill -= 1
+    if current_task.task_skill == 0 then
+      current_task.newly_skilled = true
+    end
   end
   if current_task.type == "set time" then
     active_task_countdown = current_task.task_time
@@ -309,6 +312,9 @@ end
 function end_task()
   current_task.complete = true
   current_task.task_skill -= 1
+  if current_task.task_skill == 0 then
+    current_task.newly_skilled = true
+  end
   if current_task.name == "brush your teeth" then
     time_spent_brushing = active_task_countup
     rate_dental_hygiene()
@@ -318,6 +324,15 @@ function end_task()
   end
   active_task_countup = 0
   task_is_counting_up = false
+end
+
+function any_skill_up()
+  for tsk in all(tasks) do
+    if tsk.newly_skilled then
+        return task_skill_upgrade_text[tsk.index]
+    end          
+  end
+  return "no skill up"
 end
 
 
@@ -392,8 +407,9 @@ function countdown_task()
     task_is_counting_down = false
     current_task.complete = true
     current_task.task_skill -= 1
-    if current_task.task_skill <= 0 then
+    if current_task.task_skill == 0 then
       current_task.task_time /= 2
+      current_task.newly_skilled = true
     end
   elseif framecount % 15 == 0 and framecount ~= 0 then
     active_task_countdown -= 1
@@ -532,6 +548,12 @@ function _draw()
             result_string = result_string..endingstrings[5]
         end
         print(result_string, 0, 64, 7)
+        local skill_result = any_skill_up()
+        if skill_result ~= "no skill up" then
+          print("\
+          your getting good at\
+          "..skill_result, -40, 96, 11)
+        end
     end
     if gamestate == "alarm" then
     	print("7:00 am", 50, 60, 8)

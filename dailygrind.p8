@@ -4,7 +4,7 @@ __lua__
 
 -------------------- startup
 
-gamestate = "result"
+gamestate = "alarm"
 
 framecount = 0
 timertext = "7:0"
@@ -16,11 +16,12 @@ task_is_active = false;
 task_complete_text = {}
 task_complete_text[1] = "breakfast is served!"
 task_complete_text[2] = ""
-task_complete_text[3] = "dirty clothes vanquished laundry complete!"
+task_complete_text[3] = "dirty clothes vanquished\
+laundry complete!"
 task_complete_text[4] = "the dog will eat today."
 task_complete_text[5] = "wow, tv is amazing"
 task_complete_text[6] = "the plant will live another day"
-task_complete_text[7] = "you smell slightly better than normal"
+task_complete_text[7] = "you smell...better"
 task_complete_text[8] = "you feel relieved."
 task_complete_text[9] = "clean and pearly white"
 task_complete_text[10] = "what would you do without coffee?"
@@ -32,7 +33,7 @@ task_active_text[3] = "Washing up!"
 task_active_text[4] = ""
 task_active_text[5] = "ah TV, soother of all problems"
 task_active_text[6] = ""
-task_active_text[7] = "Splish splash your taking a shower."
+task_active_text[7] = "Splish splash your taking a...shower."
 task_active_text[8] = "..."
 task_active_text[9] = "brush brush brush"
 task_active_text[10] = "come on coffee!"
@@ -318,6 +319,7 @@ function _draw()
           end
         elseif task_is_active then
           print(task_active_text[current_task.index], 0, 120, 7)
+          print(active_task_timer, 100, 120, 8)
         else
           print(task_complete_text[current_task.index], 0, 120, 7)
         end

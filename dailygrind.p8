@@ -296,6 +296,13 @@ function _update()
   end  
 end
 
+function check_primary_objectives()
+    if tasks[7].complete and tasks[9].complete and tasks[10].complete then
+      return true
+    end
+    return false
+end
+
 ------------------------ draw
 function draw_actor(a)
  local sx = (a.x * 8) - 4
@@ -337,15 +344,24 @@ function _draw()
                 score += 1
             end          
         end
-        if score == 1 then
-            print(endingstrings[2], 0, 64, 7)
-        elseif score < 5 then
-            print(endingstrings[3], 0, 64, 7)
-        elseif score < 10 then
-            print(endingstrings[4], 0, 64, 7)
-        elseif score == 10 then
-            print(endingstrings[4], 0, 64, 7)
+        result_string = ""
+        if check_primary_objectives() then
+            result_string = result_string.."You completed the bare minimum\
+            "
+        else
+            result_string = result_string.."You didn't do the bare minimum\
+            " 
         end
+        if score == 1 then
+            result_string = result_string..endingstrings[2]
+        elseif score < 5 then
+            result_string = result_string..endingstrings[3]
+        elseif score < 10 then
+            result_string = result_string..endingstrings[4]
+        elseif score == 10 then
+            result_string = result_string..endingstrings[5]
+        end
+        print(result_string, 0, 64, 7)
     end
     if gamestate == "alarm" then
     	print("7:00 am", 50, 60, 8)
@@ -366,7 +382,7 @@ you were fired."
 endingstrings[3] = "you had a poor day at work.\
 you were given an improvement plan."
 endingstrings[4] = "you had a good day at work.\
-what a douche."
+well done."
 endingstrings[5] = "you had an exceptional day at work\
 in a shock result you were elected president."
 __gfx__

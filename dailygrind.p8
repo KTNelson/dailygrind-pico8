@@ -2,6 +2,8 @@ pico-8 cartridge // http://www.pico-8.com
 version 5
 __lua__
 
+gamestate = "result"
+
 player = {}
 player.x = 16
 player.y = 88
@@ -83,15 +85,42 @@ function player_move()
 	end  
 end
 
+function capture_buttons()
+	if gamestate == "result" then
+		if btn(4) then
+			gamestate = "alarm"
+		end
+	end
+	if gamestate == "alarm" then
+		if btn(5) then
+			gamestate = "game"
+		end
+	end
+end
+
+
 function _update()
 	player_move()
+	capture_buttons()
 end
 
 function _draw()
     cls()
-    map(0,0,0,0,64,64)
-    spr(player.sprite, player.x, player.y)
+    if gamestate == "game" then
+    	map(0,0,0,0,64,64)
+    	spr(player.sprite, player.x, player.y)
+    end
+    if gamestate == "result" then
+    	print(endingstrings[1], 0, 64, 7)
+    end
+    if gamestate == "alarm" then
+    	print("7:00 AM", 50, 60, 8)
+    end
 end
+
+endingstrings = {}
+endingstrings[1] = "You had a good day at work.\
+Well done."
 
 __gfx__
 0000000000000000777777777777777777777777fffffffffff55ffffffffffffffffffffffffffffff55fffffffffffbbbbbbbbfff44fff0000000000000000

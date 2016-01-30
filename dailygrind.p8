@@ -43,7 +43,6 @@ function make_actor(x, y)
  return a
 end
 
-
 function _init()
  -- make player top left
   pl = make_actor(2.6,11.5)
@@ -63,7 +62,7 @@ end
 -- for any given point on the
 -- map, true if there is wall
 -- there.
-
+task = false
 function solid(x, y)
 
  -- grab the cell value
@@ -72,6 +71,11 @@ function solid(x, y)
  -- check if flag 1 is set (the
  -- orange toggle button in the 
  -- sprite editor)
+
+   if fget(val, 1) then
+       task = true
+   end
+   
  return fget(val, 0)
  
 end
@@ -92,7 +96,7 @@ function solid_area(x,y,w,h)
   solid(x+w,y+h)
 end
 
--- checks both walls and actors
+-- checks both walls and tasks
 function solid_a(a, dx, dy)
  if solid_area(a.x+dx,a.y+dy,
     a.w,a.h) then
@@ -215,8 +219,14 @@ function _draw()
     if gamestate == "game" then
     	map(0,0,0,0,64,64)
     	foreach(actor,draw_actor)
-        print("x "..pl.x,0,120,7)
-        print("y "..pl.y,64,120,7)
+     --   print("x "..pl.x,0,120,7)
+     --   print("y "..pl.y,64,120,7)
+        
+        --print task
+        if task then
+            print("Doing a task", 0, 120, 7)
+        end
+        
         print(timertext, 107, 1, 8)
         print(timervar, timervarx,1,8)
     end

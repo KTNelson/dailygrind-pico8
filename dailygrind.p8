@@ -10,6 +10,8 @@ framecount = 0
 timertext = "7:0"
 timervar = 0
 timervarx = 119
+active_task_timer = 0
+task_is_active = false;
 
 task_complete_text = {}
 task_complete_text[1] = "breakfast is served!"
@@ -22,16 +24,29 @@ task_complete_text[7] = "you smell slightly better than normal"
 task_complete_text[8] = "you feel relieved."
 task_complete_text[9] = "clean and pearly white"
 task_complete_text[10] = "what would you do without coffee?"
+
+task_active_text = {}
+task_active_text[1] = "Makin' breakfast!"
+task_active_text[2] = ""
+task_active_text[3] = "Washing up!"
+task_active_text[4] = ""
+task_active_text[5] = "ah TV, soother of all problems"
+task_active_text[6] = ""
+task_active_text[7] = "Splish splash your taking a shower."
+task_active_text[8] = "..."
+task_active_text[9] = "brush brush brush"
+task_active_text[10] = "come on coffee!"
 tasks = {}
 
 
-function make_task(p_name, p_type, p_id, p_index)
+function make_task(p_name, p_type, p_id, p_index, p_task_time)
     t = {}
     t.name = p_name
     t.type = p_type
     t.id = p_id
     t.complete = false
     t.index = p_index
+    t.task_time = p_task_time
     add(tasks, t)
 end
 
@@ -62,16 +77,16 @@ function _init()
   pl = make_actor(2.6,11.5)
   pl.spr = 49
 
-  make_task("make your breakfast", "set time", 17, 1)
-  make_task("turn on/off the radio", "one shot", 33, 2)
-  make_task("do your laundry", "set time", 65, 3)
-  make_task("feed your dog", "one shot", 129, 4)
-  make_task("watch the lovely tv", "continuous", 49, 5)
-  make_task("water the hydrangea", "one shot", 81, 6)
-  make_task("take a shower", "set time", 145, 7)
-  make_task("relieve yourself", "set time", 113, 8)
-  make_task("brush your teeth", "continuous", 177, 9)
-  make_task("make a decent coffee", "set time", 241, 10)
+  make_task("make your breakfast", "set time", 17, 1, 5)
+  make_task("turn on/off the radio", "one shot", 33, 2, 0)
+  make_task("do your laundry", "set time", 65, 3, 10)
+  make_task("feed your dog", "one shot", 129, 4, 0)
+  make_task("watch the lovely tv", "continuous", 49, 5, 0)
+  make_task("water the hydrangea", "one shot", 81, 6, 0)
+  make_task("take a shower", "set time", 145, 7, 12)
+  make_task("relieve yourself", "set time", 113, 8, 4)
+  make_task("brush your teeth", "continuous", 177, 9, 0)
+  make_task("make a decent coffee", "set time", 241, 10, 8)
   make_task("go to work", "one shot", 193, 2)
 end
 --------------------------------------- collision
@@ -194,11 +209,15 @@ function try_do_task()
     current_task.complete = true
   end
   if current_task.type == "set time" then
+    active_task_timer = current_task.task_time
+    task_is_active = true
   end
   if current_task.name == "go to work" then
     gamestate = "result"
   end
 end
+
+
 
 -----------------------------------------  update
 function capture_buttons()
@@ -250,10 +269,24 @@ function update_timer()
   end
 end
 
+function countdown_task()
+  if active_task_timer <= 0 then
+    task_is_active = false
+    current_task.complete = true
+  elseif framecount % 15 == 0 and framecount ~= 0 then
+    active_task_timer -= 1
+  end
+end
+
 function _update()
-	control_player(pl)
-    foreach(actor, move_actor)
-	capture_buttons()
+  if task_is_active == true then
+    countdown_task()
+  else
+	 control_player(pl)
+      foreach(actor, move_actor)
+	 capture_buttons()
+  end
+
   if gamestate == "game" then
     update_timer()
     framecount+=1
@@ -276,16 +309,19 @@ function _draw()
      --   print("y "..pl.y,64,120,7)
         
         --print task
-        if task and current_task.complete == false then
+      if current_task ~= nil then
+        if task and current_task.complete == false and task_is_active == false then
           if current_task.type == "continuous" then
             print("hold x to "..current_task.name, 0, 120, 7)
           else
             print("press x to "..current_task.name, 0, 120, 7)
           end
-        else if current_task ~= nil then
+        elseif task_is_active then
+          print(task_active_text[current_task.index], 0, 120, 7)
+        else
           print(task_complete_text[current_task.index], 0, 120, 7)
         end
-        end
+      end
         
         print(timertext, 107, 1, 8)
         print(timervar, timervarx,1,8)

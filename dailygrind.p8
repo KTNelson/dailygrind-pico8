@@ -12,6 +12,11 @@ player.sprite = 50
 
 result = false
 
+framecount = 0
+timertext = "7:0"
+timervar = 0
+timervarx = 119
+
 tasks = {}
 
 
@@ -133,11 +138,29 @@ function capture_buttons()
 	end
 end
 
+function reset_game()
+  timertext = "7:0"
+  timervar = 0
+  timervarx = 124
+end
+
+function update_timer()
+  if framecount % 15 == 0 and framecount ~= 0 then
+    timervar += 1
+  end
+  if timervar >= 10 then
+    timertext = "7:"
+    timervarx = 115
+  end
+end
 
 function _update()
 	player_move()
 	capture_buttons()
-
+  if gamestate == "game" then
+    update_timer()
+    framecount+=1
+  end  
 end
 
 function _draw()
@@ -145,6 +168,8 @@ function _draw()
     if gamestate == "game" then
     	map(0,0,0,0,64,64)
     	spr(player.sprite, player.x, player.y)
+      print(timertext, 107, 1, 8)
+      print(timervar, timervarx,1,8)
     end
     if gamestate == "result" then
     	print(endingstrings[1], 0, 64, 7)

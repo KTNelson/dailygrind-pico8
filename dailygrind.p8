@@ -19,6 +19,7 @@ function make_task(p_name, p_type, p_id)
     t.name = p_name
     t.type = p_type
     t.id = p_id
+    t.completed = false
     add(tasks, t)
 end
 
@@ -58,6 +59,7 @@ function _init()
   make_task("relieve yourself", "set time", 113)
   make_task("brush your teeth", "continuous", 177)
   make_task("make a decent coffee", "set time", 241)
+  make_task("go to work", "one shot", 193)
 end
 --------------------------------------- collision
 
@@ -239,7 +241,21 @@ function _draw()
         print(timervar, timervarx,1,8)
     end
     if gamestate == "result" then
-    	print(endingstrings[2], 0, 64, 7)
+        score = 0
+        for tsk in all(tasks) do
+            if tsk.completed then
+                score += 1
+            end          
+        end
+        if score == 1 then
+            print(endingstrings[2], 0, 64, 7)
+        elseif score < 5 then
+            print(endingstrings[3], 0, 64, 7)
+        elseif score < 10 then
+            print(endingstrings[4], 0, 64, 7)
+        elseif score == 10 then
+            print(endingstrings[4], 0, 64, 7)
+        end
     end
     if gamestate == "alarm" then
     	print("7:00 am", 50, 60, 8)
@@ -247,8 +263,6 @@ function _draw()
     if gamestate == "failure" then
       print(print(endingstrings[1], 0, 32, 7))
     end
-    
-
 end
 
 endingstrings = {}
@@ -257,9 +271,14 @@ before 8.\
 you stupid dick.\
 you got fired.\
 the end."
-endingstrings[2] = "you had a good day at work.\
-well done."
-
+endingstrings[2] = "you had a terrible day at work.\
+you were fired."
+endingstrings[3] = "you had a poor day at work.\
+you were given an improvement plan."
+endingstrings[4] = "you had a good day at work.\
+what a douche."
+endingstrings[5] = "you had an exceptional day at work\
+in a shock result you were elected president."
 __gfx__
 0000000000000000000000006666666677777777555555555555ffffffffffffffffffff5555555500000000ffffffffbbbbbbbbfff44fffff666666666666ff
 0000000000000000000000006666666674444447555555555555ffffffffffffffffffff5555555500000000ffffffffbbbbb4bbfff99fffff685555555556ff
@@ -390,7 +409,7 @@ fffffff444444444fff77ffffff77776ffffffffccccc7cc666666564fffffffffffffffffffffff
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 __gff__
-000000f101010100050101050005414100010000000000110021005100010000000171b18191910100010000310000000000000000000001010101010101010100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+000000f101010100050101c10005414100010000000000110021005100010000000171b18191910100010000310000000000000000000001010101010101010100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 __map__
 1d0c1c0404040404040404040400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000

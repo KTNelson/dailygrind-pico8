@@ -288,9 +288,18 @@ function countdown_task()
   end
 end
 
+function countup_task()
+  if framecount % 15 == 0 and framecount ~= 0 then
+    active_task_countup += 1
+  end
+end
+
 function _update()
   if task_is_counting_down == true then
     countdown_task()
+  elseif task_is_counting_up == true then
+    countup_task()
+    capture_buttons()
   else
 	 control_player(pl)
       foreach(actor, move_actor)
@@ -330,6 +339,9 @@ function _draw()
         if task and current_task.complete == false and task_is_counting_down == false then
           if current_task.type == "continuous" then
             print("hold x to "..current_task.name, 0, 120, 7)
+            if task_is_counting_up then
+              print(active_task_countup, 120, 120, 8)
+            end
           else
             print("press x to "..current_task.name, 0, 120, 7)
           end

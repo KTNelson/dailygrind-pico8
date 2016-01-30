@@ -13,6 +13,7 @@ timervarx = 119
 active_task_countdown = 0
 active_task_countup = 0
 task_is_counting_down = false;
+task_is_counting_up = false;
 
 task_complete_text = {}
 task_complete_text[1] = "breakfast is served!"
@@ -205,7 +206,7 @@ end
 
 function try_do_task()
   if current_task.type == "continuous" then
-
+    task_is_counting_up = true
   end
   if current_task.type == "one shot" then
     current_task.complete = true
@@ -219,6 +220,10 @@ function try_do_task()
   end
 end
 
+function end_task()
+  current_task.complete = true
+  task_is_counting_up = false
+end
 
 
 -----------------------------------------  update
@@ -234,6 +239,8 @@ function capture_buttons()
     if task then
       if btn(5) then
         try_do_task()
+      elseif task_is_counting_up then -- counting up but no button, must be a repeaat
+        end_task()
       end
     end
   end

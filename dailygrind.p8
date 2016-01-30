@@ -2,15 +2,9 @@ pico-8 cartridge // http://www.pico-8.com
 version 5
 __lua__
 
+-------------------- STARTUP
+
 gamestate = "result"
-
-player = {}
-player.x = 16
-player.y = 88
-player.speed = 2
-player.sprite = 50
-
-result = false
 
 tasks = {}
 
@@ -23,102 +17,136 @@ function make_task(p_x, p_y, p_name, p_spr)
     add(tasks, t)
 end
 
-make_task(10, 10, "toilet_task", 4)
+actor = {} --all actors in world
 
-function is_cell_type(p_x, p_y, p_flag) 
-   local val=mget(p_x, p_y)
-   return fget(val, 3)
+function make_actor(x, y)
+ a={}
+ a.x = x
+ a.y = y
+ a.dx = 0
+ a.dy = 0
+ a.spr = 16
+ a.t = 0
+ a.inertia = 0.6
+ a.bounce  = 1
+ 
+ -- half-width and half-height
+ a.w = 0.4
+ a.h = 0.4
+ 
+ add(actor,a)
+ 
+ return a
 end
+
+
+function _init()
+ -- make player top left
+ pl = make_actor(2.6,11.5)
+ pl.spr = 49
+end
+--------------------------------------- COLLISION
+
+-- for any given point on the
+-- map, true if there is wall
+-- there.
+
+function solid(x, y)
+
+ -- grab the cell value
+ val=mget(x, y)
+ 
+ -- check if flag 1 is set (the
+ -- orange toggle button in the 
+ -- sprite editor)
+ return fget(val, 0)
+ 
+end
+
+-- solid_area
+-- check if a rectangle overlaps
+-- with any walls
+
+--(this version only works for
+--actors less than one tile big)
 
 function solid_area(x,y,w,h)
+
  return 
-  is_cell_type(x-w,y-h) or
-  is_cell_type(x+w,y-h) or
-  is_cell_type(x-w,y+h) or
-  is_cell_type(x+w,y+h)
+  solid(x-w,y-h) or
+  solid(x+w,y-h) or
+  solid(x-w,y+h) or
+  solid(x+w,y+h)
 end
 
--- checks collisions
-function solid_a(p_x, p_y, dx, dy)
- if solid_area(p_x+dx,p_y+dy,
-    8,8) then
-    return true
+-- checks both walls and actors
+function solid_a(a, dx, dy)
+ if solid_area(a.x+dx,a.y+dy,
+    a.w,a.h) then
+    return true end
+ return false
+end
+
+function move_actor(a)
+
+ -- only move actor along x
+ -- if the resulting position
+ -- will not overlap with a wall
+
+ if not solid_a(a, a.dx, 0) 
+ then
+  a.x += a.dx
+ else   
+  -- otherwise bounce
+  a.dx *= -a.bounce
+
  end
+
+ -- ditto for y
+
+ if not solid_a(a, 0, a.dy) then
+  a.y += a.dy
+ else
+  a.dy *= -a.bounce
+
+ end
+ 
+ -- apply inertia
+ -- set dx,dy to zero if you
+ -- don't want inertia
+ 
+ a.dx *= a.inertia
+ a.dy *= a.inertia
+
+ a.t += 1
+ 
 end
 
-function is_wall()
-    return false
-end
+function control_player(pl)
 
-function is_task()
-    return false
-end
+ -- how fast to accelerate
+ accel = 0.1
+ if (btn(0)) then
+  pl.dx -= accel
+  pl.spr = 51
+ end 
+ if (btn(1)) then
+  pl.dx += accel
+  pl.spr = 52
+ end 
+ if (btn(2)) then
+  pl.dy -= accel
+  pl.spr = 49
+ end 
+ if (btn(3)) then
+  pl.dy += accel
+  pl.spr = 50
+ end 
 
-function is_door(p_x, p_y)
-    return is_cell_type(p_x, p_y, 2)
-end
-
-function check_collision(p_x, p_y)
-    local ret_val = 0
-   -- if is_wall() then
-   --    ret_val = 1
-  --  end
- --   if is_task() then
- --       ret_val = 2
- --   end
- --   if is_door(p_x, p) then
-     --   ret_val = 3
-  --  end
-  if solid_a(player.x, player.y, 2, 2) then
-      ret_val = 3
-  end
-    return ret_val
-end
-
-function move(p_dir, p_speed)
-    player[p_dir] += p_speed
-end
-
-function un_move(p_dir, p_speed)
-    player[p_dir] -= p_speed  
-end
-
-function try_move(p_dir, p_speed)
-    move(p_dir, p_speed)
-    local action = check_collision(player.x, player.y)
-    if not action == 0 or action == 3 then
-        un_move(p_dir, p_speed)    
-    end
-    return action
 end
 
 
-function go_to_work()
-    result = true
-end
-
-
-function player_move()
-    local action = 0
-    if btn(0) then 
-        action = try_move("x", -player.speed)
-        player.sprite = 51
-	end
-	if btn(1) then 
-        action = try_move("x", player.speed)
-        player.sprite = 52
-	end
-	if btn(2) then 
-        action = try_move("y", -player.speed)
-        player.sprite = 49
-	end
-	if btn(3) then 
-        action = try_move("y", player.speed)
-        player.sprite = 50
-	end 
-    return action
-end
-
+-----------------------------------------  UPDATE
 function capture_buttons()
 	if gamestate == "result" then
 		if btn(4) then
@@ -134,16 +162,26 @@ end
 
 
 function _update()
-	player_move()
+	control_player(pl)
+    foreach(actor, move_actor)
 	capture_buttons()
 
+end
+
+------------------------ DRAW
+function draw_actor(a)
+ local sx = (a.x * 8) - 4
+ local sy = (a.y * 8) - 4
+ spr(a.spr, sx, sy)
 end
 
 function _draw()
     cls()
     if gamestate == "game" then
     	map(0,0,0,0,64,64)
-    	spr(player.sprite, player.x, player.y)
+    	foreach(actor,draw_actor)
+             print("x "..pl.x,0,120,7)
+             print("y "..pl.y,64,120,7)
     end
     if gamestate == "result" then
     	print(endingstrings[1], 0, 64, 7)
@@ -151,6 +189,8 @@ function _draw()
     if gamestate == "alarm" then
     	print("7:00 AM", 50, 60, 8)
     end
+    
+
 end
 
 endingstrings = {}

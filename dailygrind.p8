@@ -4,7 +4,7 @@ __lua__
 
 -------------------- startup
 
-gamestate = "alarm"
+gamestate = "title"
 
 framecount = 0
 timertext = "7:0"
@@ -300,35 +300,47 @@ end
 
 
 -----------------------------------------  update
-function capture_buttons()
-	if gamestate == "result" then
-		if btn(4) then
-			gamestate = "alarm"
-      sfx(0)
-		end
-	end
-
-  if gamestate == "game" then
-    if task then
-      if btn(5) then
-        try_do_task()
-      elseif task_is_counting_up then -- counting up but no button, must be a repeaat
-        end_task()
-      end
+function capture_game_buttons()
+  if task then
+    if btn(5) then
+      try_do_task()
+    elseif task_is_counting_up then -- counting up but no button, must be a repeaat
+      end_task()
     end
   end
-  if gamestate == "alarm" then
-    if btn(5) then
+end
+
+function capture_menu_buttons()
+  if btn(5) then -- x button
+    if gamestate == "alarm" then
       reset_game()
       gamestate = "game"
     end
+    if gamestate == "intro1" then
+      gamestate = "intro2"
+    end
   end
+
+  if btn(4) then -- y button
+    if gamestate == "title" then
+      gamestate = "intro1"
+    end
+    if gamestate == "intro2" then
+      gamestate = "alarm"
+    end
+    if gamestate == "result" then
+      gamestate = "alarm"
+      sfx(0)
+    end
+  end
+
 end
 
 function reset_game()
   timertext = "7:0"
   timervar = 0
   timervarx = 124
+  framecount = 0
   pl.x = 2.6
   pl.y = 11.5
   current_task = nil
@@ -402,22 +414,26 @@ function update_dog()
 end
 
 function _update()
-  if task_is_counting_down == true then
-    countdown_task()
-  elseif task_is_counting_up == true then
-    countup_task()
-    capture_buttons()
-  else
-	 control_player(pl)
-     foreach(actor, move_actor)
-	 capture_buttons()
-  end
-
   if gamestate == "game" then
+    if task_is_counting_down == true then
+      countdown_task()
+    elseif task_is_counting_up == true then
+      countup_task()
+      capture_game_buttons()
+    else
+  	   control_player(pl)
+       foreach(actor, move_actor)
+  	   capture_game_buttons()
+    end
     update_timer()
     update_dog()
     framecount+=1
-  end  
+  end
+
+  if gamestate == "alarm" or gamestate == "title" or gamestate == "intro1" or gamestate == "intro2" or gamestate == "result" then
+    capture_menu_buttons()
+  end
+
 end
 
 function check_primary_objectives()
@@ -497,6 +513,22 @@ function _draw()
     end
     if gamestate == "failure" then
       print(print(endingstrings[1], 0, 32, 7))
+    end
+    if gamestate == "title" then
+      print("-- the daily grind --", 20, 50, 7)
+      print("press z to start", 32, 64, 7)
+    end
+    if gamestate == "intro1" then
+      print("\
+      this is blob\
+      he has a very important\
+      morning routine", 0, 32, 7)
+    end
+    if gamestate == "intro2" then
+      print("\
+      Coffee\
+      shower\
+      brush your teeth", 0, 32, 7)
     end
 end
 

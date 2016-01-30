@@ -10,7 +10,7 @@ framecount = 0
 timertext = "7:0"
 timervar = 0
 timervarx = 119
-active_task_countdown = 0
+active_task_countdown = 0.0
 active_task_countup = 0
 task_is_counting_down = false;
 task_is_counting_up = false;
@@ -49,10 +49,22 @@ task_active_text[8] = "..."
 task_active_text[9] = "brush brush brush"
 task_active_text[10] = "come on coffee!"
 
+task_skill_upgrade_text = {}
+task_skill_upgrade_text[1] = "making breakfast"
+task_skill_upgrade_text[2] = "turning on the radio"
+task_skill_upgrade_text[3] = "doing laundry"
+task_skill_upgrade_text[4] = "feeding the dog"
+task_skill_upgrade_text[5] = "watching tv"
+task_skill_upgrade_text[6] = "watering the plant"
+task_skill_upgrade_text[7] = "showering..."
+task_skill_upgrade_text[8] = "you know, the bathroom"
+task_skill_upgrade_text[9] = "brushing your teeth"
+task_skill_upgrade_text[10] = "making coffee"
+
 tasks = {}
 
 
-function make_task(p_name, p_type, p_id, p_index, p_task_time)
+function make_task(p_name, p_type, p_id, p_index, p_task_time, p_skill_target)
     t = {}
     t.name = p_name
     t.type = p_type
@@ -60,6 +72,8 @@ function make_task(p_name, p_type, p_id, p_index, p_task_time)
     t.complete = false
     t.index = p_index
     t.task_time = p_task_time
+    t.task_skill = p_skill_target
+    t.newlyskilled = false
     add(tasks, t)
 end
 
@@ -95,17 +109,23 @@ function make_dog_waypoints(p_x, p_y)
 end
 
 function init_tasks()
-  make_task("make your breakfast", "set time", 17, 1, 5)
-  make_task("turn on/off the radio", "one shot", 33, 2, 0)
-  make_task("do your laundry", "set time", 65, 3, 10)
-  make_task("feed your dog", "one shot", 129, 4, 0)
-  make_task("watch the lovely tv", "continuous", 49, 5, 5)
-  make_task("water the hydrangea", "one shot", 81, 6, 0)
-  make_task("take a shower", "set time", 145, 7, 12)
-  make_task("relieve yourself", "set time", 113, 8, 4)
-  make_task("brush your teeth", "continuous", 177, 9, 3)
-  make_task("make a decent coffee", "set time", 241, 10, 8)
-  make_task("go to work", "one shot", 193, 2)
+  make_task("make your breakfast", "set time", 17, 1, 5, 2)
+  make_task("turn on/off the radio", "one shot", 33, 2, 0, 8)
+  make_task("do your laundry", "set time", 65, 3, 10, 3)
+  make_task("feed your dog", "one shot", 129, 4, 0, 9)
+  make_task("watch the lovely tv", "continuous", 49, 5, 5, 5)
+  make_task("water the hydrangea", "one shot", 81, 6, 0, 6)
+  make_task("take a shower", "set time", 145, 7, 12, 4)
+  make_task("relieve yourself", "set time", 113, 8, 4, 6)
+  make_task("brush your teeth", "continuous", 177, 9, 3, 7)
+  make_task("make a decent coffee", "set time", 241, 10, 8, 1)
+  make_task("go to work", "one shot", 193, 2, 99)
+end
+
+function reset_tasks()
+  for tsk in all(tasks) do
+       tsk.complete = false
+     end
 end
 
 function init_dog_waypoints()
@@ -257,6 +277,7 @@ function try_do_task()
       dog_fed = true
     end
     current_task.complete = true
+    current_task.task_skill -= 1
   end
   if current_task.type == "set time" then
     active_task_countdown = current_task.task_time
@@ -287,6 +308,7 @@ end
 
 function end_task()
   current_task.complete = true
+  current_task.task_skill -= 1
   if current_task.name == "brush your teeth" then
     time_spent_brushing = active_task_countup
     rate_dental_hygiene()
@@ -345,8 +367,7 @@ function reset_game()
   pl.y = 11.5
   current_task = nil
   task = false
-  tasks = {}
-  init_tasks()
+  reset_tasks()
   dog_waypoints = {}
   init_dog_waypoints()
   make_dog()
@@ -370,6 +391,10 @@ function countdown_task()
   if active_task_countdown <= 0 then
     task_is_counting_down = false
     current_task.complete = true
+    current_task.task_skill -= 1
+    if current_task.task_skill <= 0 then
+      current_task.task_time /= 2
+    end
   elseif framecount % 15 == 0 and framecount ~= 0 then
     active_task_countdown -= 1
   end
@@ -526,7 +551,7 @@ function _draw()
     end
     if gamestate == "intro2" then
       print("\
-      Coffee\
+      coffee\
       shower\
       brush your teeth", 0, 32, 7)
     end

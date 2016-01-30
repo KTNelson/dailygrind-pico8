@@ -30,6 +30,10 @@ task_complete_text[7] = "you smell...better"
 task_complete_text[8] = "you feel relieved."
 task_complete_text[9] = "clean and pearly white"
 task_complete_text[10] = "what would you do without coffee?"
+task_complete_text[11] = "you overbrushed, be more careful!"
+task_complete_text[12] = "you rushed that a bit..."
+task_complete_text[13] = "that was hardly worth the effort"
+task_complete_text[14] = "oh no, you lost track of time"
 
 task_active_text = {}
 task_active_text[1] = "makin' breakfast!"
@@ -42,6 +46,7 @@ task_active_text[7] = "splish splash your taking a...shower."
 task_active_text[8] = "..."
 task_active_text[9] = "brush brush brush"
 task_active_text[10] = "come on coffee!"
+
 tasks = {}
 
 
@@ -78,22 +83,26 @@ function make_actor(x, y)
  return a
 end
 
+function init_tasks()
+  make_task("make your breakfast", "set time", 17, 1, 5)
+  make_task("turn on/off the radio", "one shot", 33, 2, 0)
+  make_task("do your laundry", "set time", 65, 3, 10)
+  make_task("feed your dog", "one shot", 129, 4, 0)
+  make_task("watch the lovely tv", "continuous", 49, 5, 5)
+  make_task("water the hydrangea", "one shot", 81, 6, 0)
+  make_task("take a shower", "set time", 145, 7, 12)
+  make_task("relieve yourself", "set time", 113, 8, 4)
+  make_task("brush your teeth", "continuous", 177, 9, 3)
+  make_task("make a decent coffee", "set time", 241, 10, 8)
+  make_task("go to work", "one shot", 193, 2)
+end
+
 function _init()
  -- make player top left
   pl = make_actor(2.6,11.5)
   pl.spr = 49
 
-  make_task("make your breakfast", "set time", 17, 1, 5)
-  make_task("turn on/off the radio", "one shot", 33, 2, 0)
-  make_task("do your laundry", "set time", 65, 3, 10)
-  make_task("feed your dog", "one shot", 129, 4, 0)
-  make_task("watch the lovely tv", "continuous", 49, 5, 0)
-  make_task("water the hydrangea", "one shot", 81, 6, 0)
-  make_task("take a shower", "set time", 145, 7, 12)
-  make_task("relieve yourself", "set time", 113, 8, 4)
-  make_task("brush your teeth", "continuous", 177, 9, 0)
-  make_task("make a decent coffee", "set time", 241, 10, 8)
-  make_task("go to work", "one shot", 193, 2)
+  init_tasks()
 end
 --------------------------------------- collision
 
@@ -223,12 +232,32 @@ function try_do_task()
   end
 end
 
+function rate_dental_hygiene()
+  local val = 3 - time_spent_brushing
+  if val < 0 then
+    current_task.index = 11
+  elseif val > 0 then  
+    current_task.index = 12
+  end 
+end
+
+function rate_enjoyment_level()
+  local val = 5 - time_spent_watching_tv
+  if val > 0 then
+    current_task.index = 13
+  elseif val < 0 then  
+    current_task.index = 14
+  end 
+end
+
 function end_task()
   current_task.complete = true
   if current_task.name == "brush your teeth" then
-    time_spent_brushing = active_task_countup   
+    time_spent_brushing = active_task_countup
+    rate_dental_hygiene()
   elseif current_task.name == "watch the lovely tv" then
     time_spent_watching_tv = active_task_countup
+    rate_enjoyment_level()
   end
   active_task_countup = 0
   task_is_counting_up = false
@@ -269,9 +298,8 @@ function reset_game()
   pl.y = 11.5
   current_task = nil
   task = false
-  for tsk in all(tasks) do
-    tsk.complete = false                 
-  end
+  tasks = {}
+  init_tasks()
 end
 
 function update_timer()
@@ -347,9 +375,11 @@ function _draw()
       if current_task ~= nil then
         if task and current_task.complete == false and task_is_counting_down == false then
           if current_task.type == "continuous" then
-            print("hold x to "..current_task.name, 0, 120, 7)
             if task_is_counting_up then
+              print(task_active_text[current_task.index], 0, 120, 7)
               print(active_task_countup, 120, 120, 8)
+            else
+              print("hold x to "..current_task.name, 0, 120, 7)
             end
           else
             print("press x to "..current_task.name, 0, 120, 7)

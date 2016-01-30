@@ -10,8 +10,9 @@ framecount = 0
 timertext = "7:0"
 timervar = 0
 timervarx = 119
-active_task_timer = 0
-task_is_active = false;
+active_task_countdown = 0
+active_task_countup = 0
+task_is_counting_down = false;
 
 task_complete_text = {}
 task_complete_text[1] = "breakfast is served!"
@@ -27,13 +28,13 @@ task_complete_text[9] = "clean and pearly white"
 task_complete_text[10] = "what would you do without coffee?"
 
 task_active_text = {}
-task_active_text[1] = "Makin' breakfast!"
+task_active_text[1] = "makin' breakfast!"
 task_active_text[2] = ""
-task_active_text[3] = "Washing up!"
+task_active_text[3] = "washing up!"
 task_active_text[4] = ""
-task_active_text[5] = "ah TV, soother of all problems"
+task_active_text[5] = "ah tv, soother of all problems"
 task_active_text[6] = ""
-task_active_text[7] = "Splish splash your taking a...shower."
+task_active_text[7] = "splish splash your taking a...shower."
 task_active_text[8] = "..."
 task_active_text[9] = "brush brush brush"
 task_active_text[10] = "come on coffee!"
@@ -210,8 +211,8 @@ function try_do_task()
     current_task.complete = true
   end
   if current_task.type == "set time" then
-    active_task_timer = current_task.task_time
-    task_is_active = true
+    active_task_countdown = current_task.task_time
+    task_is_counting_down = true
   end
   if current_task.name == "go to work" then
     gamestate = "result"
@@ -225,6 +226,7 @@ function capture_buttons()
 	if gamestate == "result" then
 		if btn(4) then
 			gamestate = "alarm"
+      sfx(0)
 		end
 	end
 
@@ -271,16 +273,16 @@ function update_timer()
 end
 
 function countdown_task()
-  if active_task_timer <= 0 then
-    task_is_active = false
+  if active_task_countdown <= 0 then
+    task_is_counting_down = false
     current_task.complete = true
   elseif framecount % 15 == 0 and framecount ~= 0 then
-    active_task_timer -= 1
+    active_task_countdown -= 1
   end
 end
 
 function _update()
-  if task_is_active == true then
+  if task_is_counting_down == true then
     countdown_task()
   else
 	 control_player(pl)
@@ -311,15 +313,15 @@ function _draw()
         
         --print task
       if current_task ~= nil then
-        if task and current_task.complete == false and task_is_active == false then
+        if task and current_task.complete == false and task_is_counting_down == false then
           if current_task.type == "continuous" then
             print("hold x to "..current_task.name, 0, 120, 7)
           else
             print("press x to "..current_task.name, 0, 120, 7)
           end
-        elseif task_is_active then
+        elseif task_is_counting_down then
           print(task_active_text[current_task.index], 0, 120, 7)
-          print(active_task_timer, 100, 120, 8)
+          print(active_task_countdown, 100, 120, 8)
         else
           print(task_complete_text[current_task.index], 0, 120, 7)
         end
@@ -533,7 +535,7 @@ __map__
 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 __sfx__
-000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+000a00002507025070250702507025070000000000000000250002507025070250702507025070000000000025000250002507025070250702507025070000002500025000250002507025070250702507025070
 001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000

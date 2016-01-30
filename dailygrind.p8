@@ -15,6 +15,9 @@ active_task_countup = 0
 task_is_counting_down = false;
 task_is_counting_up = false;
 
+time_spent_brushing = 0
+time_spent_watching_tv = 0
+
 task_complete_text = {}
 task_complete_text[1] = "breakfast is served!"
 task_complete_text[2] = ""
@@ -222,6 +225,12 @@ end
 
 function end_task()
   current_task.complete = true
+  if current_task.name == "brush your teeth" then
+    time_spent_brushing = active_task_countup   
+  elseif current_task.name == "watch the lovely tv" then
+    time_spent_watching_tv = active_task_countup
+  end
+  active_task_countup = 0
   task_is_counting_up = false
 end
 
@@ -363,13 +372,13 @@ function _draw()
                 score += 1
             end          
         end
-        result_string = ""
+        
         if check_primary_objectives() then
-            result_string = result_string.."You completed the bare minimum\
             "
+            print("You were clean and caffeinated", 0, 52, 7)
         else
-            result_string = result_string.."You didn't do the bare minimum\
             " 
+            print("You didn't do the bare minimum", 0, 52, 7)
         end
         if score == 1 then
             result_string = result_string..endingstrings[2]
@@ -400,10 +409,13 @@ endingstrings[2] = "you had a terrible day at work.\
 you were fired."
 endingstrings[3] = "you had a poor day at work.\
 you were given an improvement plan."
+you were given an\
+improvement plan."
 endingstrings[4] = "you had a good day at work.\
 well done."
 endingstrings[5] = "you had an exceptional day at work\
-in a shock result you were elected president."
+in a shock result\
+you were elected president."
 __gfx__
 0000000000000000000000006666666677777777555555555555ffffffffffffffffffff5555555500000000ffffffffbbbbbbbbfff44fffff666666666666ff
 0000000000000000000000006666666674444447555555555555ffffffffffffffffffff5555555500000000ffffffffbbbbb4bbfff99fffff685555555556ff

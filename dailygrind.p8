@@ -8,6 +8,8 @@ player.y = 64
 player.speed = 2
 player.sprite = 50
 
+result = false
+
 tasks = {}
 
 function make_task(p_x, p_y, p_name, p_spr)
@@ -21,30 +23,53 @@ end
 
 make_task(10, 10, "toilet_task", 4)
 
-function is_wall()
+function is_cell_type(p_x, p_y, p_flag) 
+   local val=mget(p_x, p_y)
+   return fget(val, 3)
+end
 
+function solid_area(x,y,w,h)
+ return 
+  is_cell_type(x-w,y-h) or
+  is_cell_type(x+w,y-h) or
+  is_cell_type(x-w,y+h) or
+  is_cell_type(x+w,y+h)
+end
+
+-- checks collisions
+function solid_a(p_x, p_y, dx, dy)
+ if solid_area(p_x+dx,p_y+dy,
+    8,8) then
     return true
+ end
+end
+
+function is_wall()
+    return false
 end
 
 function is_task()
-    return true
+    return false
 end
 
-function is_door()
-    return true
+function is_door(p_x, p_y)
+    return is_cell_type(p_x, p_y, 2)
 end
 
-function check_collision()
+function check_collision(p_x, p_y)
     local ret_val = 0
-    if is_wall() then
-       ret_val = 1
-    end
-    if is_task() then
-        ret_val = 2
-    end
-    if is_door() then
-        ret_val = 3
-    end
+   -- if is_wall() then
+   --    ret_val = 1
+  --  end
+ --   if is_task() then
+ --       ret_val = 2
+ --   end
+ --   if is_door(p_x, p) then
+     --   ret_val = 3
+  --  end
+  if solid_a(player.x, player.y, 2, 2) then
+      ret_val = 3
+  end
     return ret_val
 end
 
@@ -58,39 +83,56 @@ end
 
 function try_move(p_dir, p_speed)
     move(p_dir, p_speed)
-    local action = check_collision()
-   -- if action not 0 then
-   --     un_move(p_dir, p_speed)    
-   -- end
+    local action = check_collision(player.x, player.y)
+    if not action == 0 or action == 3 then
+        un_move(p_dir, p_speed)    
+    end
+    return action
 end
 
+
+function go_to_work()
+    result = true
+end
+
+
 function player_move()
+    local action = 0
     if btn(0) then 
-        try_move("x", -2)
+        action = try_move("x", -player.speed)
         player.sprite = 51
 	end
 	if btn(1) then 
-        try_move("x", 2)
+        action = try_move("x", player.speed)
         player.sprite = 52
 	end
 	if btn(2) then 
-        try_move("y", -2)
+        action = try_move("y", -player.speed)
         player.sprite = 49
 	end
 	if btn(3) then 
-        try_move("y", 2)
+        action = try_move("y", player.speed)
         player.sprite = 50
-	end  
+	end 
+    return action
 end
 
 function _update()
-	player_move()
+    local action = 0
+	action = player_move()
+    
+    if action == 3 then
+        go_to_work()
+    end
 end
 
 function _draw()
     cls()
     map(0,0,0,0,64,64)
     spr(player.sprite, player.x, player.y)
+    if result then 
+        cls()
+    end
 end
 
 __gfx__
@@ -223,7 +265,7 @@ __gfx__
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 __gff__
-0000010101010100010101050005000000000000000000000000000000000000000003030003030000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+0000010101010100010101040004000000000000000000000000000000000000000003030003030000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 __map__
 1c0c1c0402030203020302030203020300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000

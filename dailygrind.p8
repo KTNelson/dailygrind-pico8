@@ -374,12 +374,11 @@ function _draw()
         end
         
         if check_primary_objectives() then
-            "
             print("You were clean and caffeinated", 0, 52, 7)
         else
-            " 
             print("You didn't do the bare minimum", 0, 52, 7)
         end
+        result_string = ""
         if score == 1 then
             result_string = result_string..endingstrings[2]
         elseif score < 5 then
@@ -408,7 +407,6 @@ the end."
 endingstrings[2] = "you had a terrible day at work.\
 you were fired."
 endingstrings[3] = "you had a poor day at work.\
-you were given an improvement plan."
 you were given an\
 improvement plan."
 endingstrings[4] = "you had a good day at work.\

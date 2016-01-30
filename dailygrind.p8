@@ -18,6 +18,8 @@ task_is_counting_up = false;
 time_spent_brushing = 0
 time_spent_watching_tv = 0
 
+dog_fed = false
+
 task_complete_text = {}
 task_complete_text[1] = "breakfast is served!"
 task_complete_text[2] = ""
@@ -83,6 +85,15 @@ function make_actor(x, y)
  return a
 end
 
+dog_waypoints = {}
+
+function make_dog_waypoints(p_x, p_y)
+ a={}
+ a.x = p_x
+ a.y = p_y
+ add(dog_waypoints,a)
+end
+
 function init_tasks()
   make_task("make your breakfast", "set time", 17, 1, 5)
   make_task("turn on/off the radio", "one shot", 33, 2, 0)
@@ -97,12 +108,33 @@ function init_tasks()
   make_task("go to work", "one shot", 193, 2)
 end
 
+function init_dog_waypoints()
+  make_dog_waypoints(11.5,8.5)
+  make_dog_waypoints(11.5,6.5)
+  make_dog_waypoints(8,6.5)
+  make_dog_waypoints(8,4)
+  make_dog_waypoints(5.5,4)
+end
+
+dog = {}
+
+function make_dog()
+  dog.x = 13.5
+  dog.y = 8.5
+  dog.dx = 0
+  dog.dy = 0
+  dog.spr = 18
+  dog.target_waypoint = 1
+end
+
 function _init()
  -- make player top left
   pl = make_actor(2.6,11.5)
   pl.spr = 49
-
+  
+  make_dog()
   init_tasks()
+  init_dog_waypoints()
 end
 --------------------------------------- collision
 
@@ -221,6 +253,9 @@ function try_do_task()
     task_is_counting_up = true
   end
   if current_task.type == "one shot" then
+    if current_task.name == "feed your dog" then
+      dog_fed = true
+    end
     current_task.complete = true
   end
   if current_task.type == "set time" then
@@ -300,6 +335,9 @@ function reset_game()
   task = false
   tasks = {}
   init_tasks()
+  dog_waypoints = {}
+  init_dog_waypoints()
+  make_dog()
 end
 
 function update_timer()
@@ -331,6 +369,38 @@ function countup_task()
   end
 end
 
+function update_dog()
+  local dog_acel = 0.1
+  if dog_fed then
+    if dog.x > dog_waypoints[dog.target_waypoint].x then
+      dog.dx -= dog_acel
+      dog.x += dog.dx
+      dog.spr = 18
+      if dog.x <= dog_waypoints[dog.target_waypoint].x then
+        dog.dx = 0
+        dog.target_waypoint += 1
+        if dog.target_waypoint == 6 then
+          dog_fed = false
+          return
+        end
+      end
+    end
+    if dog.y > dog_waypoints[dog.target_waypoint].y then
+      dog.dy -= dog_acel
+      dog.y += dog.dy
+      dog.spr = 20
+      if dog.y <= dog_waypoints[dog.target_waypoint].y then
+        dog.dy = 0
+        dog.target_waypoint += 1
+        if dog.target_waypoint == 6 then
+          dog_fed = false
+          return
+        end
+      end
+    end
+  end
+end
+
 function _update()
   if task_is_counting_down == true then
     countdown_task()
@@ -339,12 +409,13 @@ function _update()
     capture_buttons()
   else
 	 control_player(pl)
-      foreach(actor, move_actor)
+     foreach(actor, move_actor)
 	 capture_buttons()
   end
 
   if gamestate == "game" then
     update_timer()
+    update_dog()
     framecount+=1
   end  
 end
@@ -368,8 +439,9 @@ function _draw()
     if gamestate == "game" then
     	map(0,0,0,0,64,64)
     	foreach(actor,draw_actor)
-     --   print("x "..pl.x,0,120,7)
-     --   print("y "..pl.y,64,120,7)
+        draw_actor(dog)
+        print("x "..dog.x,0,128,7)
+        print("y "..dog.y,64,128,7)
         
         --print task
       if current_task ~= nil then
@@ -404,9 +476,9 @@ function _draw()
         end
         
         if check_primary_objectives() then
-            print("You were clean and caffeinated", 0, 52, 7)
+            print("you were clean and caffeinated", 0, 52, 7)
         else
-            print("You didn't do the bare minimum", 0, 52, 7)
+            print("you didn't do the bare minimum", 0, 52, 7)
         end
         result_string = ""
         if score == 1 then
@@ -453,14 +525,14 @@ __gfx__
 0000000000000000000000007744440774444447555555555555ffffffffffff44444444ffffffff0000000044444444bbbbb4bbfff44fffff695555555556ff
 0000000000000000000000007744400774444447555555555555ffffffffffff44444444ffffffff0000000044444444bbbbbbbbfff44fffff666666666666ff
 0000000000000000000000007777777777777777555555555555ffffffffffff44444444ffffffff0000000044444444bbbbbbbbfff44fffff555555555555ff
-fffffff444444444ffffffffffffffffff9999fffffff9ff66666666669999667777777766606666ffffffffff3fff3fbbbbbbbbbbb88bbbff666666666666ff
-ffffffff44444444ffffffffffffffffff9999ffffff9fff66666666666666667777777766066666ff22222f3ff3f33fbbbbbbbbbb8888bbffffffffffffffff
-ffffffff44444444999ffff99ffff999ff9999fffff99fff77777777070770707777777770777777f2222222f33333ffbbbbbbbbb888888bfff2222ffffaffff
-ffffffff44444444919fff9ff9fff919fff99ffffff99fff77777777707887077777777770000007f22ee222ff333fffbbbbbbbbb888888bffff22ffffaaafff
-ffffffff44444444999999ffff999999fff99ffffff99fff77777777070770707777777770000007f22eee22fff33fffbbbbbbbbb880088bffff22ffffffaaff
-ffffffff44444444ff9999ffff9999fffff99fffff9999ff77777777070770705555555570666807f222eee2ff8888ffbbbbbbbbb440044bffffffffffffffff
-fffffff944444444ff9ff9ffff9ff9fffff9ffffff9999ff77777777707887077777777777777777ff222222ff8888ffbbbbbbbbb440044bffffffffffffffff
-fffffff944444444ffffffffffffffffff9fffffff9999ff7777777707077070ffff000f77777777fff2222fff8888ffbbbbbbbbbbbbbbbbffffffffffffffff
+fffffff444444444ffffffffffffffff00999900fffff9ff66666666669999667777777766606666ffffffffff3fff3fbbbbbbbbbbb88bbbff666666666666ff
+ffffffff44444444ffffffffffffffff00999900ffff9fff66666666666666667777777766066666ff22222f3ff3f33fbbbbbbbbbb8888bbffffffffffffffff
+ffffffff44444444999ffff99ffff99900999900fff99fff77777777070770707777777770777777f2222222f33333ffbbbbbbbbb888888bfff2222ffffaffff
+ffffffff44444444919fff9ff9fff91900099000fff99fff77777777707887077777777770000007f22ee222ff333fffbbbbbbbbb888888bffff22ffffaaafff
+ffffffff44444444999999ffff99999900099000fff99fff77777777070770707777777770000007f22eee22fff33fffbbbbbbbbb880088bffff22ffffffaaff
+ffffffff44444444ff9999ffff9999ff00099000ff9999ff77777777070770705555555570666807f222eee2ff8888ffbbbbbbbbb440044bffffffffffffffff
+fffffff944444444ff9ff9ffff9ff9ff00090000ff9999ff77777777707887077777777777777777ff222222ff8888ffbbbbbbbbb440044bffffffffffffffff
+fffffff944444444ffffffffffffffff00900000ff9999ff7777777707077070ffff000f77777777fff2222fff8888ffbbbbbbbbbbbbbbbbffffffffffffffff
 ffffffff4444444466666666fff77776ffffffffcccccccc666666664444444ffffffffffffffffffffffffffffffffff0fff0ff000000000000000000000000
 fffffff94444444466666666ff777776ff666fffc7cccc7c665555564004444fffffffffff5555ffffffffffffffffffff0f0fff000000000000000000000000
 fffffff944444444f777777fff777778f64446ffc7cccc7c677766564084444ffffffffff55ff55ffffffffffffffffffff00fff000000000000000000000000
@@ -585,7 +657,7 @@ __map__
 040e0f0507070707070707070707070400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 041e1f0907070707070707070707070400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 0407070707070707070506070505050400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-040505050505070707051b0707121a0400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+040505050505070707051b0707071a0400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 0429070707090707070507070707070400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 04070707070707070705072c0707070400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 04272810110507070705072a2b07070400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000

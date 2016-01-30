@@ -11,14 +11,27 @@ timertext = "7:0"
 timervar = 0
 timervarx = 119
 
+task_complete_text = {}
+task_complete_text[1] = "Breakfast is served!"
+task_complete_text[2] = ""
+task_complete_text[3] = "Dirty clothes vanquished laundry complete!"
+task_complete_text[4] = "The dog will eat today."
+task_complete_text[5] = "Wow, TV is amazing"
+task_complete_text[6] = "The plant will live another day"
+task_complete_text[7] = "You smell slightly better than normal"
+task_complete_text[8] = "You feel relieved."
+task_complete_text[9] = "Clean and pearly white"
+task_complete_text[10] = "What would you do without coffee?"
 tasks = {}
 
 
-function make_task(p_name, p_type, p_id)
+function make_task(p_name, p_type, p_id, p_index)
     t = {}
     t.name = p_name
     t.type = p_type
     t.id = p_id
+    t.complete = false
+    t.index = p_index
     add(tasks, t)
 end
 
@@ -48,16 +61,16 @@ function _init()
  -- make player top left
   pl = make_actor(2.6,11.5)
   pl.spr = 49
-  make_task("make your breakfast", "set time", 17)
-  make_task("turn on/off the radio", "one shot", 33)
-  make_task("do your laundry", "set time", 65)
-  make_task("feed your dog", "one shot", 129)
-  make_task("watch the lovely tv", "continuous", 49)
-  make_task("water the hydrangea", "one shot", 81)
-  make_task("take a shower", "set time", 145)
-  make_task("relieve yourself", "set time", 113)
-  make_task("brush your teeth", "continuous", 177)
-  make_task("make a decent coffee", "set time", 241)
+  make_task("make your breakfast", "set time", 17, 1)
+  make_task("turn on/off the radio", "one shot", 33, 2)
+  make_task("do your laundry", "set time", 65, 3)
+  make_task("feed your dog", "one shot", 129, 4)
+  make_task("watch the lovely tv", "continuous", 49, 5)
+  make_task("water the hydrangea", "one shot", 81, 6)
+  make_task("take a shower", "set time", 145, 7)
+  make_task("relieve yourself", "set time", 113, 8)
+  make_task("brush your teeth", "continuous", 177, 9)
+  make_task("make a decent coffee", "set time", 241, 10)
 end
 --------------------------------------- collision
 
@@ -65,7 +78,7 @@ end
 -- map, true if there is wall
 -- there.
 task = false
-task_id = "null"
+current_task = nil
 function solid(x, y)
 
  -- grab the cell value
@@ -79,7 +92,7 @@ function solid(x, y)
        for tsk in all(tasks) do
          if tsk.id == fget(val) then
            task = true
-           task_id = tsk.name
+           current_task = tsk
          end
        end
    end
@@ -169,7 +182,19 @@ function control_player(pl)
  end 
 
 end
+-----------------------------------------  tasks
 
+function try_do_task()
+  if current_task.type == "continuous" then
+
+  end
+  if current_task.type == "one shot" then
+    current_task.complete = true
+  end
+  if current_task.type == "set time" then
+
+  end
+end
 
 -----------------------------------------  update
 function capture_buttons()
@@ -183,6 +208,13 @@ function capture_buttons()
 			gamestate = "game"
 		end
 	end
+  if gamestate == "game" then
+    if task then
+      if btn(5) then
+        try_do_task()
+      end
+    end
+  end
 end
 
 function reset_game()
@@ -231,8 +263,15 @@ function _draw()
      --   print("y "..pl.y,64,120,7)
         
         --print task
-        if task then
-            print("doing task "..task_id, 0, 120, 7)
+        if task and current_task.complete == false then
+          if current_task.type == "continuous" then
+            print("hold x to "..current_task.name, 0, 120, 7)
+          else
+            print("press x to "..current_task.name, 0, 120, 7)
+          end
+        else if current_task ~= nil then
+          print(task_complete_text[current_task.index], 0, 120, 7)
+        end
         end
         
         print(timertext, 107, 1, 8)

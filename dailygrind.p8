@@ -207,16 +207,18 @@ function capture_buttons()
 			gamestate = "alarm"
 		end
 	end
-	if gamestate == "alarm" then
-		if btn(5) then
-			gamestate = "game"
-		end
-	end
+
   if gamestate == "game" then
     if task then
       if btn(5) then
         try_do_task()
       end
+    end
+  end
+  if gamestate == "alarm" then
+    if btn(5) then
+      reset_game()
+      gamestate = "game"
     end
   end
 end
@@ -225,6 +227,13 @@ function reset_game()
   timertext = "7:0"
   timervar = 0
   timervarx = 124
+  pl.x = 2.6
+  pl.y = 11.5
+  current_task = nil
+  task = false
+  for tsk in all(tasks) do
+    tsk.complete = false                 
+  end
 end
 
 function update_timer()

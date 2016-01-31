@@ -396,7 +396,11 @@ function try_do_task()
 end
 
 function rate_dental_hygiene()
-  local val = 3 - time_spent_brushing
+  
+  if time_spent_brushing < current_task.task_time then
+    current_task.complete = false  
+  end
+  local val = current_task.task_time - time_spent_brushing
   if val < 0 then
     use_alternate_text = true
     current_task.alternate_index = 1
@@ -407,7 +411,10 @@ function rate_dental_hygiene()
 end
 
 function rate_enjoyment_level()
-  local val = 5 - time_spent_watching_tv
+  if time_spent_watching_tv < current_task.task_time then
+    current_task.complete = false  
+  end
+  local val = current_task.task_time - time_spent_watching_tv
   if val > 0 then
     use_alternate_text = true
     current_task.alternate_index = 3

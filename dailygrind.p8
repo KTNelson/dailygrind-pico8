@@ -748,27 +748,14 @@ end
 
 function display_score(p_score)
   local result_string = ""
-  
-  if p_score < 10 then 
-    result_string = "You were terrible"
-  elseif p_score < 20 then
-    result_string = "You were pretty awfull"
-  elseif p_score < 30 then
-    result_string = "You were pretty bad"
-  elseif p_score < 40 then
-    result_string = "You were poor"
-  elseif p_score < 50 then 
-    result_string = "You're getting there"
-  elseif p_score < 60 then
-    result_string = "Now you've got it"
-  elseif p_score < 70 then
-    result_string = "getting better"
-  elseif p_score < 80 then
-    result_string = "pretty good"
-  elseif p_score < 90 then
-    result_string = "awesome"
-  elseif p_score == 100 then
-    result_string = "winner"
+  if p_score < 25 then 
+    result_string = endingstringsrubbish[flr(rnd(#endingstringsrubbish)) + 1]
+  elseif p_score < 50 then
+    result_string = endingstringsbelowpar[flr(rnd(#endingstringsbelowpar)) + 1]
+  elseif p_score < 750 then
+    result_string = endingstringsabovepar[flr(rnd(#endingstringsabovepar)) + 1]
+  elseif p_score < 100 then
+    result_string = endingstringsnearperfect[flr(rnd(#endingstringsnearperfect)) + 1]
   end  
   print(result_string, 0, 72, 7)
 end
@@ -824,12 +811,6 @@ function _draw()
             else
               score -= tsk.score_modifier
             end          
-        end
-        
-        if check_primary_objectives() then
-            print("you were clean and caffeinated", 0, 52, 7)
-        else
-            print("you didn't get much done", 0, 52, 7)
         end
         
         print(score, 0, 64, 7)
@@ -904,10 +885,10 @@ endingstrings[5] = "you had an exceptional day at work\
 in a shock result\
 you were elected president."
 
-endingstringsrubbish{}
-endingstringsbelowpar{}
-endingstringsabovepar{}
-endingstringsnearperfect{}
+endingstringsrubbish = {}
+endingstringsbelowpar = {}
+endingstringsabovepar = {}
+endingstringsnearperfect = {}
 endingstringsnearperfect[1] = "Youre a dynamo\
 keep going."
 endingstringsnearperfect[2] = "You got a standing\

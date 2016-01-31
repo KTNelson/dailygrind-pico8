@@ -218,7 +218,7 @@ function _init()
   radio = make_task_sprite(8.5, 1.5, 25)
   init_tasks()
   init_dog_waypoints()
-  music(0, 7)
+  music(0, 10)
 end
 --------------------------------------- collision
 
@@ -366,7 +366,7 @@ function try_do_task()
           if current_task.complete == false then
             current_task.complete = true
             radio.spr = 63
-            music(5, 7)
+            music(5, 10)
             current_task.task_skill -= 1
           else
             current_task.complete = false
@@ -389,6 +389,7 @@ function try_do_task()
     if current_task.name == "go to work" then
       tasks[11].days_since_completion = 0
       gamestate = "result"
+      music(-1)
     end 
   end
 end
@@ -445,23 +446,23 @@ end
 
 function play_task_sfx(task_name)
   if task_name == "make your breakfast" then
-    sfx(17, -1)
+    sfx(17, 0)
   elseif task_name == "brush your teeth" and task_is_counting_up == false then
-    sfx(12, -1)
+    sfx(12, 0)
   elseif task_name == "take a shower" then
-    sfx(13, -1)
+    sfx(13, 0)
   elseif task_name == "feed your dog" then
-    sfx(14, -1)
+    sfx(14, 0)
   elseif task_name == "watch the lovely tv" and task_is_counting_up == false then
-    sfx(15, -1)
+    sfx(15, 0)
   elseif task_name == "do your laundry" then
-    sfx(16, -1)
+    sfx(16, 0)
   elseif task_name == "make a decent coffee" then
-    sfx(18, -1)
+    sfx(18, 0)
   elseif task_name == "go to work" then
-    sfx(19, -1)
+    sfx(19, 0)
   elseif task_name == "relieve yourself" then
-    sfx(20, -1)
+    sfx(20, 0)
   end
 end
 
@@ -478,21 +479,26 @@ end
 
 function capture_menu_buttons()
   if btnp(4) then -- z button
-    sfx(10)
+    sfx(10, 1)
     if gamestate == "alarm" then
       reset_game()
       gamestate = "game"
       music(-1)
-    elseif gamestate == "intro1" then
-      gamestate = "intro2"
     elseif gamestate == "title" then
       gamestate = "intro1"
+    elseif gamestate == "intro1" then
+      gamestate = "intro2"
     elseif gamestate == "intro2" then
+      gamestate = "intro3"
+    elseif gamestate == "intro3" then
+      gamestate = "intro4"
+    elseif gamestate == "intro4" then
       gamestate = "alarm"
     elseif gamestate == "result" then
       warning_index = 0
       gamestate = "alarm"
-      sfx(0)
+      sfx(-1)
+      sfx(0, 1)
       for tsk in all(tasks) do
       if tsk.newly_skilled == true then
           tsk.newly_skilled = false
@@ -530,6 +536,7 @@ end
 function update_timer()
   if timervar == 60 then
     gamestate = "failure"
+    music(-1)
   end
 
   if framecount % 15 == 0 and framecount ~= 0 then
@@ -683,7 +690,7 @@ function _update()
     framecount+=1
   end
 
-  if gamestate == "failure" or gamestate == "alarm" or gamestate == "title" or gamestate == "intro1" or gamestate == "intro2" or gamestate == "result" then
+  if gamestate == "failure" or gamestate == "alarm" or gamestate == "title" or gamestate == "intro1" or gamestate == "intro2" or gamestate == "intro3" or gamestate == "intro4" or gamestate == "result" then
     capture_menu_buttons()
   end
 
@@ -824,13 +831,30 @@ function _draw()
       he has a very important\
       morning routine", 0, 32, 7)
       spr(50, 86, 42)
+      print("press z to continue", 16, 96, 7)
     end
     if gamestate == "intro2" then
       print("\
       coffee\
       shower\
       brush your teeth", 0, 32, 7)
+      print("press z to continue", 16, 96, 7)
     end
+    if gamestate == "intro3" then
+      print("\
+      things you do\
+      in the morning\
+      affect your day", 0, 32, 7)
+      print("press z to continue", 16, 96, 7)
+    end
+    if gamestate == "intro4" then
+      print("\
+      try to have a perfect morning\
+      and have an amazing day", -16, 32, 7)
+      print("press z to continue", 16, 96, 7)
+    end
+
+    
 end
 
 endingstrings = {}

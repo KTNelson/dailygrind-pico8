@@ -24,6 +24,9 @@ laundry_on = false
 
 warning_index = 0
 
+result_picked = false
+result_string = ""
+
 
 additional_objectives_text = {}
 additional_objectives_text[1] = "you shouldn't go to work\
@@ -388,9 +391,15 @@ function try_do_task()
       task_is_counting_down = true
     end
     if current_task.name == "go to work" then
-      tasks[11].days_since_completion = 0
-      gamestate = "result"
-      music(-1)
+      for tsk in all(tasks) do
+        if not tsk.complete then
+          tasks[11].days_since_completion = 0
+          gamestate = "result"
+          music(-1)
+          --return
+        end
+        gamestate = "win"
+      end
     end 
   end
 end
@@ -519,6 +528,9 @@ function capture_menu_buttons()
     if gamestate == "failure" then
       run()
     end
+    if gamestate == "win" then
+      run()
+    end
   end
 end
 
@@ -539,6 +551,8 @@ function reset_game()
   radio = make_task_sprite(8.5, 1.5, 25)
   laundry_on = false
   use_alternate_text = false
+  result_picked = false
+  result_string = ""
 end
 
 function update_timer()
@@ -698,7 +712,7 @@ function _update()
     framecount+=1
   end
 
-  if gamestate == "failure" or gamestate == "alarm" or gamestate == "title" or gamestate == "intro1" or gamestate == "intro2" or gamestate == "intro3" or gamestate == "intro4" or gamestate == "result" then
+  if gamestate == "win" or gamestate == "failure" or gamestate == "alarm" or gamestate == "title" or gamestate == "intro1" or gamestate == "intro2" or gamestate == "intro3" or gamestate == "intro4" or gamestate == "result" then
     capture_menu_buttons()
   end
 
@@ -747,16 +761,18 @@ function print_warnings()
 end
 
 function display_score(p_score)
-  local result_string = ""
-  if p_score < 25 then 
-    result_string = endingstringsrubbish[flr(rnd(#endingstringsrubbish)) + 1]
-  elseif p_score < 50 then
-    result_string = endingstringsbelowpar[flr(rnd(#endingstringsbelowpar)) + 1]
-  elseif p_score < 750 then
-    result_string = endingstringsabovepar[flr(rnd(#endingstringsabovepar)) + 1]
-  elseif p_score < 100 then
-    result_string = endingstringsnearperfect[flr(rnd(#endingstringsnearperfect)) + 1]
-  end  
+  if not result_picked then
+    if p_score < 25 then 
+      result_string = endingstringsrubbish[flr(rnd(#endingstringsrubbish)) + 1]
+    elseif p_score < 50 then
+      result_string = endingstringsbelowpar[flr(rnd(#endingstringsbelowpar)) + 1]
+    elseif p_score < 750 then
+      result_string = endingstringsabovepar[flr(rnd(#endingstringsabovepar)) + 1]
+    elseif p_score < 100 then
+      result_string = endingstringsnearperfect[flr(rnd(#endingstringsnearperfect)) + 1]
+    end  
+    result_picked = true
+  end
   print(result_string, 0, 72, 7)
 end
 
@@ -812,7 +828,7 @@ function _draw()
               score -= tsk.score_modifier
             end          
         end
-        
+
         print(score, 0, 64, 7)
         
         display_score(score)
@@ -824,41 +840,42 @@ function _draw()
           "..skill_result, -40, 96, 11)
 
         end
-    end
-    if gamestate == "alarm" then
+    elseif gamestate == "alarm" then
     	print("7:00 am", 50, 60, 8)
         print_warnings()
-    end
-    if gamestate == "failure" then
+    elseif gamestate == "failure" then
       print(print(endingstrings[1], 0, 32, 7))
-    end
-    if gamestate == "title" then
+    
+    elseif gamestate == "win" then
+      print(print(endingstrings[5], 0, 32, 7))
+    
+    elseif gamestate == "title" then
       print("-- the daily grind --", 20, 50, 7)
       print("press z to start", 32, 64, 7)
-    end
-    if gamestate == "intro1" then
+    
+    elseif gamestate == "intro1" then
       print("\
       this is guss\
       he has a very important\
       morning routine", 0, 32, 7)
       spr(50, 86, 42)
       print("press z to continue", 16, 96, 7)
-    end
-    if gamestate == "intro2" then
+    
+    elseif gamestate == "intro2" then
       print("\
       coffee\
       shower\
       brush your teeth", 0, 32, 7)
       print("press z to continue", 16, 96, 7)
-    end
-    if gamestate == "intro3" then
+    
+    elseif gamestate == "intro3" then
       print("\
       things you do\
       in the morning\
       affect your day", 0, 32, 7)
       print("press z to continue", 16, 96, 7)
-    end
-    if gamestate == "intro4" then
+    
+    elseif gamestate == "intro4" then
       print("\
       try to have a perfect morning\
       and have an amazing day", -16, 32, 7)
@@ -886,11 +903,55 @@ in a shock result\
 you were elected president."
 
 endingstringsrubbish = {}
+endingstringsrubbish[1] = "Tom in marketing needs\
+someone to walk his pet rock\
+you wre not considered."
+endingstringsrubbish[2] = "Reliable focused interesting\
+not you."
+endingstringsrubbish[3] = "You sat alone at lunch\
+for many reasons."
+endingstringsrubbish[4] = "Such a poor show\
+This must take effort."
+endingstringsrubbish[5] = "Your name is written on\
+the toilet wall\
+unflaterringly."
+endingstringsrubbish[6] = "Glenn got a bonus\
+you got detention."
+endingstringsrubbish[7] = "You missed your presentation\
+it was three weeks ago."
+endingstringsrubbish[8] = "Some say you're a genius\
+those people are idiots\
+like you."
+endingstringsrubbish[9] = "Your new work nickname is\
+Mr bad at his job."
+endingstringsrubbish[10] = "Janet in accounting thinks\
+you're the worst."
+
+
 endingstringsbelowpar = {}
+endingstringsbelowpar[1] = "mediocre at best."
+endingstringsbelowpar[2] = "You didn't completely fail\
+nice work."
+endingstringsbelowpar[3] = "Not too bad\
+but not too great either."
+endingstringsbelowpar[4] = "Glenn sees you as his equal\
+Try harder."
+endingstringsbelowpar[5] = "Your work is sub-par\
+but there is hope."
+endingstringsbelowpar[6] = "Well at least this day is over."
+endingstringsbelowpar[7] = "You made Glenn look\
+positively dynamic\
+try harder."
+endingstringsbelowpar[8] = "No one likes a quitter\
+keep trying."
+endingstringsbelowpar[9] = "YExtraordinarly average."
+endingstringsbelowpar[10] = "The boss noticed a big\
+improvement\
+Still a ways to go though."
 
 endingstringsabovepar = {}
 endingstringsabovepar[1] = "Your work was average\
-but not without merit"
+but not without merit."
 endingstringsabovepar[2] = "You got a high five\
 from a collegue\
 good job."

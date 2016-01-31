@@ -887,7 +887,35 @@ you were elected president."
 
 endingstringsrubbish = {}
 endingstringsbelowpar = {}
+
 endingstringsabovepar = {}
+endingstringsabovepar[1] = "Your work was average\
+but not without merit"
+endingstringsabovepar[2] = "You got a high five\
+from a collegue\
+good job."
+endingstringsabovepar[3] = "Your karaoke song\
+is now\
+eye of the tiger."
+endingstringsabovepar[4] = "Alan in eugenics\
+thinks you alright."
+endingstringsabovepar[5] = "Nice work buddy\
+acceptable job."
+endingstringsabovepar[6] = "your new work nickname\
+is not too bad guy."
+endingstringsabovepar[7] = "Sally in radiology\
+likes\
+the cut of your jib."
+endingstringsabovepar[8] = "Not too shabby\
+you might just get there."
+endingstringsabovepar[9] = "Keep this up\
+a promotion\
+is on the horizon"
+endingstringsabovepar[10] = "Who wears short\
+shorts? some idiot\
+not you."
+
+
 endingstringsnearperfect = {}
 endingstringsnearperfect[1] = "Youre a dynamo\
 keep going."
@@ -899,7 +927,20 @@ near perfection."
 endingstringsnearperfect[4] = "Never has someone\
 been more awesome.\
 nearly perfect."
-endingstringsnearperfect[5] = ""
+endingstringsnearperfect[5] = "Great work, people\
+adore you."
+endingstringsnearperfect[6] = "youre new work nickname\
+is Mr Awesome"
+endingstringsnearperfect[7] = "You got a promotion\
+glenn cried."
+endingstringsnearperfect[8] = "So close to perfection\
+keep going."
+endingstringsnearperfect[9] = "Inspirational, a \
+plaque has been\
+made in your honour."
+endingstringsnearperfect[10] = "Youre like a banana\
+dependable, healthy and\
+full of potassium"
 __gfx__
 0000000000000000000000006666666677777777555555555555ffffffffffffffffffff5555555500000000ffffffffbbbbbbbbfff44fffff666666666666ff
 0000000000000000000000006666666674444447555555555555ffffffffffffffffffff5555555500000000ffffffffbbbbb4bbfff99fffff685555555556ff

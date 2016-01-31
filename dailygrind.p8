@@ -382,7 +382,7 @@ end
 
 function any_skill_up()
   for tsk in all(tasks) do
-    if tsk.newly_skilled then
+    if tsk.newly_skilled == true then
         tsk.newly_skilled = false
         return task_skill_upgrade_text[tsk.index]
     end          

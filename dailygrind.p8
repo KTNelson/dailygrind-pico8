@@ -896,6 +896,22 @@ well done."
 endingstrings[5] = "you had an exceptional day at work\
 in a shock result\
 you were elected president."
+
+endingstringsrubbish{}
+endingstringsbelowpar{}
+endingstringsabovepar{}
+endingstringsnearperfect{}
+endingstringsnearperfect[1] = "Youre a dynamo\
+keep going."
+endingstringsnearperfect[2] = "You got a standing\
+ovation today.\
+excellent."
+endingstringsnearperfect[3] = "You exude near\
+near perfection."
+endingstringsnearperfect[4] = "Never has someone\
+been more awesome.\
+nearly perfect."
+endingstringsnearperfect[5] = ""
 __gfx__
 0000000000000000000000006666666677777777555555555555ffffffffffffffffffff5555555500000000ffffffffbbbbbbbbfff44fffff666666666666ff
 0000000000000000000000006666666674444447555555555555ffffffffffffffffffff5555555500000000ffffffffbbbbb4bbfff99fffff685555555556ff

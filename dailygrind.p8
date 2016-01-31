@@ -442,6 +442,12 @@ function capture_menu_buttons()
       gamestate = "alarm"
       sfx(0)
     end
+    
+  end
+  if btnp(5) then
+    if gamestate == "failure" then
+      run()
+    end
   end
 end
 
@@ -588,7 +594,7 @@ function _update()
     framecount+=1
   end
 
-  if gamestate == "alarm" or gamestate == "title" or gamestate == "intro1" or gamestate == "intro2" or gamestate == "result" then
+  if gamestate == "failure" or gamestate == "alarm" or gamestate == "title" or gamestate == "intro1" or gamestate == "intro2" or gamestate == "result" then
     capture_menu_buttons()
   end
 

@@ -135,16 +135,16 @@ function make_dog_waypoints(p_x, p_y)
 end
 
 function init_tasks()
-  make_task("make your breakfast", "set time", 17, 1, 5, 2, 3)
+  make_task("make your breakfast", "set time", 17, 1, 5, 2, 5)
   make_task("turn on/off the radio", "one shot", 33, 2, 0, 8, 5)
   make_task("do your laundry", "set time", 65, 3, 10, 3, 6)
-  make_task("feed your dog", "one shot", 129, 4, 0, 9, 3)
+  make_task("feed your dog", "one shot", 129, 4, 0, 9, 5)
   make_task("watch the lovely tv", "continuous", 49, 5, 5, 5, 7)
-  make_task("water the hydrangea", "one shot", 81, 6, 0, 6, 4)
-  make_task("take a shower", "set time", 145, 7, 12, 4, 3)
+  make_task("water the hydrangea", "one shot", 81, 6, 0, 6, 3)
+  make_task("take a shower", "set time", 145, 7, 12, 4, 5)
   make_task("relieve yourself", "set time", 113, 8, 4, 6, 6)
-  make_task("brush your teeth", "continuous", 177, 9, 3, 7, 2)
-  make_task("make a decent coffee", "set time", 241, 10, 8, 1, 2)
+  make_task("brush your teeth", "continuous", 177, 9, 3, 7, 5)
+  make_task("make a decent coffee", "set time", 241, 10, 8, 1, 5)
   make_task("go to work", "one shot", 193, 2, 0, 99, 1)
 end
 
@@ -669,7 +669,7 @@ function print_warnings()
   end
   if #late_tasks > 0 then
     if warning_index == 0 then
-      warning_index = flr(rnd(#late_tasks)) + 1  
+      warning_index = late_tasks[flr(rnd(#late_tasks)) + 1]
     end
     print(#late_tasks, 0, 90, 9)
     print(additional_objectives_text[warning_index], 0, 100, 9)

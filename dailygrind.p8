@@ -212,7 +212,7 @@ function _init()
  -- make player top left
   pl = make_actor(2.6,11.5)
   pl.spr = 49
-  
+  btnp(4)
   make_dog()
   make_tv()
   make_washer()
@@ -396,10 +396,11 @@ function try_do_task()
           tasks[11].days_since_completion = 0
           gamestate = "result"
           music(-1)
-          --return
+          return
         end
-        gamestate = "win"
       end
+      gamestate = "win"
+      sfx(22, 1)
     end 
   end
 end
@@ -510,6 +511,8 @@ function capture_menu_buttons()
       gamestate = "intro4"
     elseif gamestate == "intro4" then
       gamestate = "alarm"
+    elseif gamestate == "win" then
+      run()
     elseif gamestate == "result" then
       warning_index = 0
       reset_game()
@@ -526,9 +529,6 @@ function capture_menu_buttons()
   end
   if btnp(5) then
     if gamestate == "failure" then
-      run()
-    end
-    if gamestate == "win" then
       run()
     end
   end
@@ -559,6 +559,7 @@ function update_timer()
   if timervar == 60 then
     gamestate = "failure"
     music(-1)
+    sfx(21, 0)
   end
 
   if framecount % 15 == 0 and framecount ~= 0 then
@@ -845,10 +846,8 @@ function _draw()
         print_warnings()
     elseif gamestate == "failure" then
       print(print(endingstrings[1], 0, 32, 7))
-    
     elseif gamestate == "win" then
-      print(print(endingstrings[5], 0, 32, 7))
-    
+      print(print(endingstrings[5], 0, 32, 7))  
     elseif gamestate == "title" then
       print("-- the daily grind --", 20, 50, 7)
       print("press z to start", 32, 64, 7)
@@ -878,10 +877,13 @@ function _draw()
     elseif gamestate == "intro4" then
       print("\
       try to have a perfect morning\
-      and have an amazing day", -16, 32, 7)
+      get to work before 8\
+      or youll get fired!", -16, 32, 7)
       print("press z to continue", 16, 96, 7)
+    elseif gamestate == "win" then
+      print(endingstrings[5], 32, 64, 7)
+      print("press z to restart", 16, 96, 7)
     end
-
     
 end
 
@@ -898,7 +900,7 @@ you were given an\
 improvement plan."
 endingstrings[4] = "you had a good day at work.\
 well done."
-endingstrings[5] = "you had an exceptional day at work\
+endingstrings[5] = "exceptional day at work\
 in a shock result\
 you were elected president."
 

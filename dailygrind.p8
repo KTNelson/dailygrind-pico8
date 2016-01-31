@@ -383,12 +383,12 @@ end
 function any_skill_up()
   for tsk in all(tasks) do
     if tsk.newly_skilled then
+        tsk.newly_skilled = false
         return task_skill_upgrade_text[tsk.index]
     end          
   end
   return "no skill up"
 end
-
 
 -----------------------------------------  update
 function capture_game_buttons()
@@ -648,6 +648,7 @@ function _draw()
           print("\
           your getting good at\
           "..skill_result, -40, 96, 11)
+
         end
     end
     if gamestate == "alarm" then

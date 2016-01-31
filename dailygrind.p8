@@ -334,13 +334,15 @@ function try_do_task()
       dog_fed = true
     end
     if current_task.name == "turn on/off the radio" then
-      if current_task.complete == false then
-        current_task.complete = true
-        music(5)
-        current_task.task_skill -= 1
-      else
-        current_task.complete = false
-        music(-1)
+      if btnp(5) then
+        if current_task.complete == false then
+          current_task.complete = true
+          music(5)
+          current_task.task_skill -= 1
+        else
+          current_task.complete = false
+          music(-1)
+        end
       end
     else 
       current_task.complete = true
@@ -402,7 +404,6 @@ end
 function any_skill_up()
   for tsk in all(tasks) do
     if tsk.newly_skilled == true then
-        tsk.newly_skilled = false
         return task_skill_upgrade_text[tsk.index]
     end          
   end
@@ -441,6 +442,11 @@ function capture_menu_buttons()
       optional_index = flr(rnd(7)) + 1
       gamestate = "alarm"
       sfx(0)
+      for tsk in all(tasks) do
+      if tsk.newly_skilled == true then
+          tsk.newly_skilled = false
+      end          
+  end
     end
     
   end

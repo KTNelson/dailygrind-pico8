@@ -481,7 +481,6 @@ function capture_menu_buttons()
   if btnp(4) then -- z button
     sfx(10)
     if gamestate == "alarm" then
-      reset_game()
       gamestate = "game"
       music(-1)
     elseif gamestate == "intro1" then
@@ -492,6 +491,7 @@ function capture_menu_buttons()
       gamestate = "alarm"
     elseif gamestate == "result" then
       warning_index = 0
+      reset_game()
       gamestate = "alarm"
       sfx(0)
       for tsk in all(tasks) do
@@ -730,7 +730,33 @@ function print_warnings()
     print(#late_tasks, 0, 90, 9)
     print(additional_objectives_text[warning_index], 0, 100, 9)
   end
+end
+
+function display_score(p_score)
+  local result_string = ""
   
+  if p_score < 10 then 
+    result_string = "You were terrible"
+  elseif p_score < 20 then
+    result_string = "You were pretty awfull"
+  elseif p_score < 30 then
+    result_string = "You were pretty bad"
+  elseif p_score < 40 then
+    result_string = "You were poor"
+  elseif p_score < 50 then 
+    result_string = "You're getting there"
+  elseif p_score < 60 then
+    result_string = "Now you've got it"
+  elseif p_score < 70 then
+    result_string = "getting better"
+  elseif p_score < 80 then
+    result_string = "pretty good"
+  elseif p_score < 90 then
+    result_string = "awesome"
+  elseif p_score == 100 then
+    result_string = "winner"
+  end  
+  print(result_string, 0, 72, 7)
 end
 
 function _draw()
@@ -791,9 +817,11 @@ function _draw()
         else
             print("you didn't get much done", 0, 52, 7)
         end
-        result_string = ""
         
         print(score, 0, 64, 7)
+        
+        display_score(score)
+        
         local skill_result = any_skill_up()
         if skill_result ~= "no skill up" then
           print("\

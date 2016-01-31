@@ -87,7 +87,7 @@ task_skill_upgrade_text[10] = "making coffee"
 tasks = {}
 
 
-function make_task(p_name, p_type, p_id, p_index, p_task_time, p_skill_target, p_warning_day)
+function make_task(p_name, p_type, p_id, p_index, p_task_time, p_skill_target, p_warning_day, p_score_modifier)
     t = {}
     t.name = p_name
     t.type = p_type
@@ -100,6 +100,7 @@ function make_task(p_name, p_type, p_id, p_index, p_task_time, p_skill_target, p
     t.alternate_text = ""
     t.days_since_completion = 0
     t.warning_day = p_warning_day
+    t.score_modifier = p_score_modifier
     add(tasks, t)
 end
 
@@ -135,17 +136,17 @@ function make_dog_waypoints(p_x, p_y)
 end
 
 function init_tasks()
-  make_task("make your breakfast", "set time", 17, 1, 5, 2, 5)
-  make_task("turn on/off the radio", "one shot", 33, 2, 0, 8, 5)
-  make_task("do your laundry", "set time", 65, 3, 10, 3, 6)
-  make_task("feed your dog", "one shot", 129, 4, 0, 9, 5)
-  make_task("watch the lovely tv", "continuous", 49, 5, 5, 5, 7)
-  make_task("water the hydrangea", "one shot", 81, 6, 0, 6, 3)
-  make_task("take a shower", "set time", 145, 7, 12, 4, 5)
-  make_task("relieve yourself", "set time", 113, 8, 4, 6, 6)
-  make_task("brush your teeth", "continuous", 177, 9, 3, 7, 5)
-  make_task("make a decent coffee", "set time", 241, 10, 8, 1, 5)
-  make_task("go to work", "one shot", 193, 2, 0, 99, 1)
+  make_task("make your breakfast", "set time", 17, 1, 5, 2, 5, 6)
+  make_task("turn on/off the radio", "one shot", 33, 2, 0, 8, 10, 2)
+  make_task("do your laundry", "set time", 65, 3, 10, 3, 6, 3)
+  make_task("feed your dog", "one shot", 129, 4, 0, 9, 2, 6)
+  make_task("watch the lovely tv", "continuous", 49, 5, 5, 5, 11, 2)
+  make_task("water the hydrangea", "one shot", 81, 6, 0, 6, 3, 2)
+  make_task("take a shower", "set time", 145, 7, 12, 4, 20, 8)
+  make_task("relieve yourself", "set time", 113, 8, 4, 6, 6, 5)
+  make_task("brush your teeth", "continuous", 177, 9, 3, 7, 20, 8)
+  make_task("make a decent coffee", "set time", 241, 10, 8, 1, 20, 8)
+  make_task("go to work", "one shot", 193, 2, 0, 99, 1, 0)
 end
 
 function reset_tasks()
@@ -481,7 +482,6 @@ function capture_menu_buttons()
   if btnp(4) then -- z button
     sfx(10, 1)
     if gamestate == "alarm" then
-      reset_game()
       gamestate = "game"
       music(-1)
     elseif gamestate == "title" then
@@ -496,6 +496,7 @@ function capture_menu_buttons()
       gamestate = "alarm"
     elseif gamestate == "result" then
       warning_index = 0
+      reset_game()
       gamestate = "alarm"
       sfx(-1)
       sfx(0, 1)
@@ -736,7 +737,33 @@ function print_warnings()
     print(#late_tasks, 0, 90, 9)
     print(additional_objectives_text[warning_index], 0, 100, 9)
   end
+end
+
+function display_score(p_score)
+  local result_string = ""
   
+  if p_score < 10 then 
+    result_string = "You were terrible"
+  elseif p_score < 20 then
+    result_string = "You were pretty awfull"
+  elseif p_score < 30 then
+    result_string = "You were pretty bad"
+  elseif p_score < 40 then
+    result_string = "You were poor"
+  elseif p_score < 50 then 
+    result_string = "You're getting there"
+  elseif p_score < 60 then
+    result_string = "Now you've got it"
+  elseif p_score < 70 then
+    result_string = "getting better"
+  elseif p_score < 80 then
+    result_string = "pretty good"
+  elseif p_score < 90 then
+    result_string = "awesome"
+  elseif p_score == 100 then
+    result_string = "winner"
+  end  
+  print(result_string, 0, 72, 7)
 end
 
 function _draw()
@@ -783,10 +810,12 @@ function _draw()
         print(timervar, timervarx,1,8)
     end
     if gamestate == "result" then
-        score = 0
+        score = 50
         for tsk in all(tasks) do
             if tsk.complete then
-                score += 1
+                score += tsk.score_modifier
+            else
+              score -= tsk.score_modifier
             end          
         end
         
@@ -795,17 +824,11 @@ function _draw()
         else
             print("you didn't get much done", 0, 52, 7)
         end
-        result_string = ""
-        if score == 1 then
-            result_string = result_string..endingstrings[2]
-        elseif score < 5 then
-            result_string = result_string..endingstrings[3]
-        elseif score < 10 then
-            result_string = result_string..endingstrings[4]
-        elseif score == 10 then
-            result_string = result_string..endingstrings[5]
-        end
-        print(result_string, 0, 64, 7)
+        
+        print(score, 0, 64, 7)
+        
+        display_score(score)
+        
         local skill_result = any_skill_up()
         if skill_result ~= "no skill up" then
           print("\

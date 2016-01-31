@@ -218,7 +218,7 @@ function _init()
   radio = make_task_sprite(8.5, 1.5, 25)
   init_tasks()
   init_dog_waypoints()
-  music(0, 1)
+  music(0, 7)
 end
 --------------------------------------- collision
 
@@ -351,43 +351,45 @@ end
 -----------------------------------------  tasks
 
 function try_do_task()
-play_task_sfx(current_task.name)
-  if current_task.type == "continuous" then
-    task_is_counting_up = true
-  end
-  if current_task.type == "one shot" then
-    if current_task.name == "feed your dog" then
-      dog_fed = true
+  if current_task.complete == false then
+    play_task_sfx(current_task.name)
+    if current_task.type == "continuous" then
+      task_is_counting_up = true
     end
-    if current_task.name == "turn on/off the radio" then
-      if btnp(5) then
-        if current_task.complete == false then
-          current_task.complete = true
-          radio.spr = 63
-          music(5)
-          current_task.task_skill -= 1
-        else
-          current_task.complete = false
-          radio.spr = 25
-          music(-1)
-        end
+    if current_task.type == "one shot" then
+      if current_task.name == "feed your dog" then
+        dog_fed = true
       end
-    else 
-      current_task.complete = true
-      current_task.task_skill -= 1
+      if current_task.name == "turn on/off the radio" then
+        if btnp(5) then
+          if current_task.complete == false then
+            current_task.complete = true
+            radio.spr = 63
+            music(5, 7)
+            current_task.task_skill -= 1
+          else
+            current_task.complete = false
+            radio.spr = 25
+            music(-1)
+          end
+        end
+      else 
+        current_task.complete = true
+        current_task.task_skill -= 1
+      end
+      if current_task.task_skill == 0 then
+        current_task.newly_skilled = true
+      end
     end
-    if current_task.task_skill == 0 then
-      current_task.newly_skilled = true
+    if current_task.type == "set time" then
+      active_task_countdown = current_task.task_time
+      task_is_counting_down = true
     end
+    if current_task.name == "go to work" then
+      tasks[11].days_since_completion = 0
+      gamestate = "result"
+    end 
   end
-  if current_task.type == "set time" then
-    active_task_countdown = current_task.task_time
-    task_is_counting_down = true
-  end
-  if current_task.name == "go to work" then
-    tasks[11].days_since_completion = 0
-    gamestate = "result"
-  end 
 end
 
 function rate_dental_hygiene()
@@ -480,17 +482,13 @@ function capture_menu_buttons()
       reset_game()
       gamestate = "game"
       music(-1)
-    end
-    if gamestate == "intro1" then
+    elseif gamestate == "intro1" then
       gamestate = "intro2"
-    end
-    if gamestate == "title" then
+    elseif gamestate == "title" then
       gamestate = "intro1"
-    end
-    if gamestate == "intro2" then
+    elseif gamestate == "intro2" then
       gamestate = "alarm"
-    end
-    if gamestate == "result" then
+    elseif gamestate == "result" then
       warning_index = 0
       gamestate = "alarm"
       sfx(0)
@@ -498,8 +496,8 @@ function capture_menu_buttons()
       if tsk.newly_skilled == true then
           tsk.newly_skilled = false
       end          
-  end
     end
+  end
     
   end
   if btnp(5) then
@@ -821,9 +819,10 @@ function _draw()
     end
     if gamestate == "intro1" then
       print("\
-      this is blob\
+      this is guss\
       he has a very important\
       morning routine", 0, 32, 7)
+      spr(50, 86, 42)
     end
     if gamestate == "intro2" then
       print("\

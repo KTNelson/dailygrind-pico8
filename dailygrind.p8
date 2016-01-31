@@ -830,7 +830,7 @@ function _draw()
             end          
         end
 
-        print(score, 0, 64, 7)
+        --print(score, 0, 64, 7)
         
         display_score(score)
         
@@ -907,7 +907,7 @@ you were elected president."
 endingstringsrubbish = {}
 endingstringsrubbish[1] = "Tom in marketing needs\
 someone to walk his pet rock\
-you wre not considered."
+you were not considered."
 endingstringsrubbish[2] = "Reliable focused interesting\
 not you."
 endingstringsrubbish[3] = "You sat alone at lunch\

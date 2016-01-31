@@ -67,7 +67,7 @@ task_active_text[3] = "washing up!"
 task_active_text[4] = ""
 task_active_text[5] = "ah tv, soother of all problems"
 task_active_text[6] = ""
-task_active_text[7] = "scrub, scrub!"
+task_active_text[7] = "splish splash your taking a...shower."
 task_active_text[8] = "..."
 task_active_text[9] = "brush brush brush"
 task_active_text[10] = "come on coffee!"
@@ -117,8 +117,8 @@ function make_actor(x, y)
  a.bounce  = 1
  
  -- half-width and half-height
- a.w = 0.2
- a.h = 0.2
+ a.w = 0.3
+ a.h = 0.3
  
  add(actor,a)
  
@@ -218,7 +218,7 @@ function _init()
   radio = make_task_sprite(8.5, 1.5, 25)
   init_tasks()
   init_dog_waypoints()
-  music(0, 7)
+  music(0)
 end
 --------------------------------------- collision
 
@@ -345,51 +345,47 @@ function control_player(pl)
    if distance(pl.x, pl.y, current_task.x, current_task.y) > 1 then
      task = false
      current_task = nil
-     use_alternate_text = false
    end
  end
 end
 -----------------------------------------  tasks
 
 function try_do_task()
-  if current_task.complete == false then
-    play_task_sfx(current_task.name)
-    if current_task.type == "continuous" then
-      task_is_counting_up = true
+  if current_task.type == "continuous" then
+    task_is_counting_up = true
+  end
+  if current_task.type == "one shot" then
+    if current_task.name == "feed your dog" then
+      dog_fed = true
     end
-    if current_task.type == "one shot" then
-      if current_task.name == "feed your dog" then
-        dog_fed = true
-      end
-      if current_task.name == "turn on/off the radio" then
-        if btnp(5) then
-          if current_task.complete == false then
-            current_task.complete = true
-            radio.spr = 63
-            music(5, 7)
-            current_task.task_skill -= 1
-          else
-            current_task.complete = false
-            radio.spr = 25
-            music(-1)
-          end
+    if current_task.name == "turn on/off the radio" then
+      if btnp(5) then
+        if current_task.complete == false then
+          current_task.complete = true
+          radio.spr = 63
+          music(5)
+          current_task.task_skill -= 1
+        else
+          current_task.complete = false
+          radio.spr = 25
+          music(-1)
         end
-      else 
-        current_task.complete = true
-        current_task.task_skill -= 1
       end
-      if current_task.task_skill == 0 then
-        current_task.newly_skilled = true
-      end
+    else 
+      current_task.complete = true
+      current_task.task_skill -= 1
     end
-    if current_task.type == "set time" then
-      active_task_countdown = current_task.task_time
-      task_is_counting_down = true
+    if current_task.task_skill == 0 then
+      current_task.newly_skilled = true
     end
-    if current_task.name == "go to work" then
-      tasks[11].days_since_completion = 0
-      gamestate = "result"
-    end 
+  end
+  if current_task.type == "set time" then
+    active_task_countdown = current_task.task_time
+    task_is_counting_down = true
+  end
+  if current_task.name == "go to work" then
+    tasks[11].days_since_completion = 0
+    gamestate = "result"
   end
 end
 
@@ -443,28 +439,6 @@ function any_skill_up()
   return "no skill up"
 end
 
-function play_task_sfx(task_name)
-  if task_name == "make your breakfast" then
-    sfx(17, -1)
-  elseif task_name == "brush your teeth" and task_is_counting_up == false then
-    sfx(12, -1)
-  elseif task_name == "take a shower" then
-    sfx(13, -1)
-  elseif task_name == "feed your dog" then
-    sfx(14, -1)
-  elseif task_name == "watch the lovely tv" and task_is_counting_up == false then
-    sfx(15, -1)
-  elseif task_name == "do your laundry" then
-    sfx(16, -1)
-  elseif task_name == "make a decent coffee" then
-    sfx(18, -1)
-  elseif task_name == "go to work" then
-    sfx(19, -1)
-  elseif task_name == "relieve yourself" then
-    sfx(20, -1)
-  end
-end
-
 -----------------------------------------  update
 function capture_game_buttons()
   if task then
@@ -478,18 +452,21 @@ end
 
 function capture_menu_buttons()
   if btnp(4) then -- z button
-    sfx(10)
     if gamestate == "alarm" then
       reset_game()
       gamestate = "game"
       music(-1)
-    elseif gamestate == "intro1" then
+    end
+    if gamestate == "intro1" then
       gamestate = "intro2"
-    elseif gamestate == "title" then
+    end
+    if gamestate == "title" then
       gamestate = "intro1"
-    elseif gamestate == "intro2" then
+    end
+    if gamestate == "intro2" then
       gamestate = "alarm"
-    elseif gamestate == "result" then
+    end
+    if gamestate == "result" then
       warning_index = 0
       gamestate = "alarm"
       sfx(0)
@@ -497,8 +474,8 @@ function capture_menu_buttons()
       if tsk.newly_skilled == true then
           tsk.newly_skilled = false
       end          
-    end
   end
+    end
     
   end
   if btnp(5) then
@@ -786,7 +763,7 @@ function _draw()
         if check_primary_objectives() then
             print("you were clean and caffeinated", 0, 52, 7)
         else
-            print("you didn't get much done", 0, 52, 7)
+            print("you didn't do the bare minimum", 0, 52, 7)
         end
         result_string = ""
         if score == 1 then
@@ -820,10 +797,9 @@ function _draw()
     end
     if gamestate == "intro1" then
       print("\
-      this is guss\
+      this is blob\
       he has a very important\
       morning routine", 0, 32, 7)
-      spr(50, 86, 42)
     end
     if gamestate == "intro2" then
       print("\
@@ -868,7 +844,7 @@ fffffff944444444ff9ff9ffff9ff9ff00090000ff9999ff77777777707887077777777777777777
 fffffff944444444ffffffffffffffff00900000ff9999ff7777777707077070ffff000f77777777fff2222fff8888ffbbbbbbbbbbbbbbbbffffffffffffffff
 ffffffff4444444466666666fff77776ffffffffcccccccc666666664444444ffffffffffffffffffffffffffffffffff0fff0fff0fff0ffff666666666666ff
 fffffff94444444466666666ff777776ff666fffc7cccc7c665555564004444fffffffffff5555ffffffffffffffffffff0f0fffff0f0fffffffffffffffffff
-fffffff944444444ff7779afff777778f64446ffc7cccc7c677766564084444ffffffffff55ff55ffffffffffffffffffff00ffffff00fffffffffffffffffff
+fffffff944444444f777777fff777778f64446ffc7cccc7c677766564084444ffffffffff55ff55ffffffffffffffffffff00ffffff00fffffffffffffffffff
 ffffffff44444444f777777fff777776f64446ffc7cc7c7c666666564084444ffffffffff5faaf5ffffffffffffffffff000000ff000000fffffffffffffffff
 ffffffff44444444f777777fff777776f64446ffc7cc7c7c666666564004444ffffffffff5faaf5ffffffffffffffffff055550ff0c4320fffffffffffffffff
 ffffffff44444444f777777fff77777cff666fffc7cc7ccc666666564444444ffffffffff55ff55ffffffffffffffffff055550ff0a3640fffffffffffffffff
@@ -979,7 +955,7 @@ ff555555555555ff0000000000000000000000000000000000000000000000000000000000000000
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 __gff__
-000000f101010100c10101c10005414100010000000001110121005100010000000171b181919101000100003131000000000000000101010101010131511121414100b1b10000000000000000000000414100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+000000f101010100c10101c10005414100010000000000110021005100010000000171b181919101000100003131000000000000000000010101010131511121414100b1b10000000000000000000000414100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 __map__
 1d0c1c0404040404040404040400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
@@ -990,7 +966,7 @@ __map__
 040e0f0507070707070707070707070400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 0407070907070707070707070707070400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 0407070707070707070506070505050400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-040505050505070707051b0707071a0400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+040505050505070700051b0707071a0400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 0429070707090707070507070707070400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 04070707070707070705072c0707070400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 04272810110507070705072a2b07070400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000

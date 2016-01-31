@@ -12,8 +12,9 @@ timervar = 0
 timervarx = 119
 active_task_countdown = 0.0
 active_task_countup = 0
-task_is_counting_down = false;
-task_is_counting_up = false;
+task_is_counting_down = false
+task_is_counting_up = false
+use_alternate_text = false
 
 time_spent_brushing = 0
 time_spent_watching_tv = 0
@@ -47,10 +48,12 @@ task_complete_text[7] = "you smell...better"
 task_complete_text[8] = "you feel relieved."
 task_complete_text[9] = "clean and pearly white"
 task_complete_text[10] = "what would you do without coffee?"
-task_complete_text[11] = "you overbrushed, be more careful!"
-task_complete_text[12] = "you rushed that a bit..."
-task_complete_text[13] = "that was hardly worth the effort"
-task_complete_text[14] = "oh no, you lost track of time"
+
+alternate_complete_text = {}
+alternate_complete_text[1] = "you overbrushed, be more careful!"
+alternate_complete_text[2] = "you rushed that a bit..."
+alternate_complete_text[3] = "that was hardly worth the effort"
+alternate_complete_text[4] = "oh no, you lost track of time"
 
 task_active_text = {}
 task_active_text[1] = "makin' breakfast!"
@@ -89,6 +92,7 @@ function make_task(p_name, p_type, p_id, p_index, p_task_time, p_skill_target)
     t.task_time = p_task_time
     t.task_skill = p_skill_target
     t.newly_skilled = false
+    t.alternate_text = ""
     add(tasks, t)
 end
 
@@ -358,18 +362,22 @@ end
 function rate_dental_hygiene()
   local val = 3 - time_spent_brushing
   if val < 0 then
-    current_task.index = 11
+    use_alternate_text = true
+    current_task.alternate_index = 1
   elseif val > 0 then  
-    current_task.index = 12
+    use_alternate_text = true
+    current_task.alternate_index = 2
   end 
 end
 
 function rate_enjoyment_level()
   local val = 5 - time_spent_watching_tv
   if val > 0 then
-    current_task.index = 13
+    use_alternate_text = true
+    current_task.alternate_index = 3
   elseif val < 0 then  
-    current_task.index = 14
+    use_alternate_text = true
+    current_task.alternate_index = 4
   end 
 end
 
@@ -453,6 +461,7 @@ function reset_game()
   make_tv()
   make_washer()
   laundry_on = false
+  use_alternate_text = false
 end
 
 function update_timer()
@@ -637,7 +646,11 @@ function _draw()
           print(task_active_text[current_task.index], 0, 120, 7)
           print(active_task_countdown, 100, 120, 8)
         else
-          print(task_complete_text[current_task.index], 0, 120, 7)
+          if use_alternate_text then
+            print(alternate_complete_text[current_task.alternate_index], 0, 120, 7)
+          else
+            print(task_complete_text[current_task.index], 0, 120, 7)
+          end
         end
       end
         

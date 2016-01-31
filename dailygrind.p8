@@ -511,7 +511,7 @@ end
 function reset_game()
   timertext = "7:0"
   timervar = 0
-  timervarx = 124
+  timervarx = 119
   framecount = 0
   pl.x = 2.6
   pl.y = 11.5

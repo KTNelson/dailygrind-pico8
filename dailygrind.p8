@@ -62,7 +62,7 @@ task_active_text[3] = "washing up!"
 task_active_text[4] = ""
 task_active_text[5] = "ah tv, soother of all problems"
 task_active_text[6] = ""
-task_active_text[7] = "splish splash your taking a...shower."
+task_active_text[7] = "scrub, scrub!"
 task_active_text[8] = "..."
 task_active_text[9] = "brush brush brush"
 task_active_text[10] = "come on coffee!"
@@ -193,7 +193,7 @@ function _init()
   make_washer()
   init_tasks()
   init_dog_waypoints()
-  music(0)
+  music(0, 1)
 end
 --------------------------------------- collision
 
@@ -336,7 +336,7 @@ function try_do_task()
     if current_task.name == "turn on/off the radio" then
       if current_task.complete == false then
         current_task.complete = true
-        music(5)
+        music(5, 1)
         current_task.task_skill -= 1
       else
         current_task.complete = false
@@ -357,6 +357,7 @@ function try_do_task()
   if current_task.name == "go to work" then
     gamestate = "result"
   end
+  play_task_sfx(current_task.name)
 end
 
 function rate_dental_hygiene()
@@ -409,6 +410,28 @@ function any_skill_up()
   return "no skill up"
 end
 
+function play_task_sfx(task_name)
+  if task_name == "make your breakfast" then
+    sfx(17, -1)
+  elseif task_name == "brush your teeth" and task_is_counting_up == false then
+    sfx(12, -1)
+  elseif task_name == "take a shower" then
+    sfx(13, -1)
+  elseif task_name == "feed your dog" then
+    sfx(14, -1)
+  elseif task_name == "watch the lovely tv" and task_is_counting_up == false then
+    sfx(15, -1)
+  elseif task_name == "do your laundry" then
+    sfx(16, -1)
+  elseif task_name == "make a decent coffee" then
+    sfx(18, -1)
+  elseif task_name == "go to work" then
+    sfx(19, -1)
+  elseif task_name == "relieve yourself" then
+    sfx(20, -1)
+  end
+end
+
 -----------------------------------------  update
 function capture_game_buttons()
   if task then
@@ -422,6 +445,7 @@ end
 
 function capture_menu_buttons()
   if btnp(4) then -- z button
+    sfx(10)
     if gamestate == "alarm" then
       reset_game()
       gamestate = "game"

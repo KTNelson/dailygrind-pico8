@@ -22,7 +22,8 @@ time_spent_watching_tv = 0
 dog_fed = false
 laundry_on = false
 
-optional_index = 0
+warning_index = 0
+
 
 additional_objectives_text = {}
 additional_objectives_text[1] = "you shouldn't go to work\
@@ -33,7 +34,11 @@ additional_objectives_text[3] = "your running low on pants"
 additional_objectives_text[4] = "a dogs not just for christmas"
 additional_objectives_text[5] = "whats on the idiot box?"
 additional_objectives_text[6] = "that plants looking a bit brown"
-additional_objectives_text[7] = "don't get caught short"
+additional_objectives_text[7] = "whats that smell..."
+additional_objectives_text[8] = "don't get caught short"
+additional_objectives_text[9] = "your dentist won't be happy"
+additional_objectives_text[10] = "how about a little pick me up?"
+additional_objectives_text[11] = "The developer has fucked up here"
 
 
 task_complete_text = {}
@@ -82,7 +87,7 @@ task_skill_upgrade_text[10] = "making coffee"
 tasks = {}
 
 
-function make_task(p_name, p_type, p_id, p_index, p_task_time, p_skill_target)
+function make_task(p_name, p_type, p_id, p_index, p_task_time, p_skill_target, p_warning_day)
     t = {}
     t.name = p_name
     t.type = p_type
@@ -94,6 +99,7 @@ function make_task(p_name, p_type, p_id, p_index, p_task_time, p_skill_target)
     t.newly_skilled = false
     t.alternate_text = ""
     t.days_since_completion = 0
+    t.warning_day = p_warning_day
     add(tasks, t)
 end
 
@@ -129,17 +135,17 @@ function make_dog_waypoints(p_x, p_y)
 end
 
 function init_tasks()
-  make_task("make your breakfast", "set time", 17, 1, 5, 2)
-  make_task("turn on/off the radio", "one shot", 33, 2, 0, 8)
-  make_task("do your laundry", "set time", 65, 3, 10, 3)
-  make_task("feed your dog", "one shot", 129, 4, 0, 9)
-  make_task("watch the lovely tv", "continuous", 49, 5, 5, 5)
-  make_task("water the hydrangea", "one shot", 81, 6, 0, 6)
-  make_task("take a shower", "set time", 145, 7, 12, 4)
-  make_task("relieve yourself", "set time", 113, 8, 4, 6)
-  make_task("brush your teeth", "continuous", 177, 9, 3, 7)
-  make_task("make a decent coffee", "set time", 241, 10, 8, 1)
-  make_task("go to work", "one shot", 193, 2, 0, 99)
+  make_task("make your breakfast", "set time", 17, 1, 5, 2, 3)
+  make_task("turn on/off the radio", "one shot", 33, 2, 0, 8, 5)
+  make_task("do your laundry", "set time", 65, 3, 10, 3, 6)
+  make_task("feed your dog", "one shot", 129, 4, 0, 9, 3)
+  make_task("watch the lovely tv", "continuous", 49, 5, 5, 5, 7)
+  make_task("water the hydrangea", "one shot", 81, 6, 0, 6, 4)
+  make_task("take a shower", "set time", 145, 7, 12, 4, 3)
+  make_task("relieve yourself", "set time", 113, 8, 4, 6, 6)
+  make_task("brush your teeth", "continuous", 177, 9, 3, 7, 2)
+  make_task("make a decent coffee", "set time", 241, 10, 8, 1, 2)
+  make_task("go to work", "one shot", 193, 2, 0, 99, 1)
 end
 
 function reset_tasks()
@@ -371,6 +377,7 @@ function try_do_task()
     task_is_counting_down = true
   end
   if current_task.name == "go to work" then
+    tasks[11].days_since_completion = 0
     gamestate = "result"
   end
 end
@@ -449,11 +456,10 @@ function capture_menu_buttons()
       gamestate = "intro1"
     end
     if gamestate == "intro2" then
-      optional_index = flr(rnd(7)) + 1
       gamestate = "alarm"
     end
     if gamestate == "result" then
-      optional_index = flr(rnd(7)) + 1
+      warning_index = 0
       gamestate = "alarm"
       sfx(0)
       for tsk in all(tasks) do
@@ -652,6 +658,25 @@ function draw_washer()
   spr(washer.spr4, sx + 8, sy + 8)
 end
 
+function print_warnings()
+  local i = 1
+  local late_tasks = {}
+  for tsk in all(tasks) do
+    if tsk.days_since_completion >= tsk.warning_day then
+      add(late_tasks, i)
+    end
+    i += 1
+  end
+  if #late_tasks > 0 then
+    if warning_index == 0 then
+      warning_index = flr(rnd(#late_tasks)) + 1  
+    end
+    print(#late_tasks, 0, 90, 9)
+    print(additional_objectives_text[warning_index], 0, 100, 9)
+  end
+  
+end
+
 function _draw()
     cls()
     if gamestate == "game" then
@@ -726,7 +751,7 @@ function _draw()
     end
     if gamestate == "alarm" then
     	print("7:00 am", 50, 60, 8)
-        print(additional_objectives_text[optional_index], 0, 110, 11)
+        print_warnings()
     end
     if gamestate == "failure" then
       print(print(endingstrings[1], 0, 32, 7))
